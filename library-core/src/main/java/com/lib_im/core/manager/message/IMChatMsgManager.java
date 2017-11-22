@@ -3,10 +3,10 @@ package com.lib_im.core.manager.message;
 import android.content.Context;
 import android.util.Log;
 
+import com.lib_im.core.entity.ChatMessage;
 import com.lib_im.core.manager.group.GroupContactManager;
 import com.lib_im.core.manager.notify.PushManager;
 import com.lib_im.pro.im.config.ChatCode;
-import com.lib_im.pro.im.config.XmppTool;
 import com.lib_im.pro.im.listener.HistoryMessageListener;
 import com.lib_im.pro.im.listener.IMMessageListener;
 import com.lib_im.pro.im.listener.MessageCallBack;
@@ -22,9 +22,8 @@ import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat.Chat;
-import org.jivesoftware.smack.chat.ChatManager;
 import org.jivesoftware.smack.chat.ChatManagerListener;
-import org.jivesoftware.smack.chat.ChatMessageListener;
+import org.jivesoftware.smack.chat2.ChatManager;
 import org.jivesoftware.smack.filter.StanzaFilter;
 import org.jivesoftware.smack.filter.StanzaTypeFilter;
 import org.jivesoftware.smack.packet.Message;
@@ -50,14 +49,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import io.reactivex.annotations.NonNull;
-import library.san.library_ui.entity.ChatMessage;
-import library.san.library_ui.entity.ChatRecord;
-import library.san.library_ui.entity.GroupChatRecord;
-import library.san.library_ui.entity.GroupContact;
-import library.san.library_ui.entity.SessionItem;
-import library.san.library_ui.utils.LogUtils;
-
 /**
  * 聊天管理器
  * Created by songgx on 16/6/15.
@@ -81,9 +72,9 @@ public class IMChatMsgManager implements ChatMsgManager,
     private String mChatUserId = "";
 
     private final String TAG = "IMChatMsgManager";
-    private org.jivesoftware.smack.chat.ChatManager smackChatManager;
+    private ChatManager mChatManager;
 
-    private DeliveryReceiptManager deliveryReceiptManager;//消息回执管理器
+    private DeliveryReceiptManager mDeliveryReceiptManager;//消息回执管理器
 
     public IMChatMsgManager(Context context) {
         mContext = context;
@@ -125,14 +116,21 @@ public class IMChatMsgManager implements ChatMsgManager,
     @Override
     public void initIm(AbstractXMPPConnection connection) {
         this.connection = connection;
-        smackChatManager = ChatManager.getInstanceFor(connection);
-        smackChatManager.addChatListener(this);
+        mChatManager = ChatManager.getInstanceFor(connection);
+        mChatManager.addIncomingListener((from, message, chat) -> {
+
+        });
+        mChatManager.addOutgoingListener((to, message, chat) -> {
+
+        });
         StanzaFilter stanzaFilter = new StanzaTypeFilter(Stanza.class);
         connection.addSyncStanzaListener(this, stanzaFilter);
         //消息回执添加监听器操作
-        deliveryReceiptManager = DeliveryReceiptManager.getInstanceFor(connection);
-        //deliveryReceiptManager.dontAutoAddDeliveryReceiptRequests();
-        deliveryReceiptManager.addReceiptReceivedListener(this);
+        mDeliveryReceiptManager = DeliveryReceiptManager.getInstanceFor(connection);
+        mDeliveryReceiptManager.autoAddDeliveryReceiptRequests();
+        mDeliveryReceiptManager.addReceiptReceivedListener((fromJid, toJid, receiptId, receipt) -> {
+
+        });
     }
 
     /**
@@ -306,7 +304,7 @@ public class IMChatMsgManager implements ChatMsgManager,
         //设置消息发送需要回执-----------------------------------------------------------------------end
         String jid = msg.getFromId() + "@" + connection.getServiceName();
         //单人聊天，后续要加多人聊天
-        Chat chat = smackChatManager.createChat(jid, null);
+        Chat chat = mChatManager.createChat(jid, null);
         if (connection != null && connection.isConnected()) {//保持服务连接的情况下发送消息
             try {/**发送消息成功*/
                 if (chat != null) {
@@ -597,8 +595,8 @@ public class IMChatMsgManager implements ChatMsgManager,
     @Override
     public void removeChatAboutListener() {
         connection.removeSyncStanzaListener(this);
-        smackChatManager.removeChatListener(this);
-        deliveryReceiptManager.removeReceiptReceivedListener(this);
+        mChatManager.removeChatListener(this);
+        mDeliveryReceiptManager.removeReceiptReceivedListener(this);
         if (roomChatList != null) {
             for (MultiUserChat userChat : roomChatList) {
                 if (userChat != null) {
@@ -686,11 +684,6 @@ public class IMChatMsgManager implements ChatMsgManager,
         pushManager.setNotifyLink(_appName, R.drawable.icon, "", cls);
         pushManager.setBell(Boolean.TRUE);
         pushManager.setVibrate(Boolean.FALSE);
-    }
-
-    @Override
-    public void onReceiptReceived(String fromJid, String toJid, String receiptId, Stanza stanza) {
-        // TODO 消息回执逻辑实现思路，在对方收到消息后，标记已读后发送消息至初始发送消息方来更新界面上的消息状态
     }
 
     /**
@@ -1153,60 +1146,57 @@ public class IMChatMsgManager implements ChatMsgManager,
      */
     @Override
     public void chatCreated(Chat chat, boolean b) {
-        chat.addMessageListener(new ChatMessageListener() {
-            @Override
-            public void processMessage(Chat chat, Message message) {
+        chat.addMessageListener((chat1, message) -> {
+            Log.d(TAG, "processMessage 接收消息....");
+            if (message.getBodies().size() > 0) {//如果是空消息则不接收
+                //获取当前用户的用户名和id
+                final String strFrom = message.getFrom();
                 Log.d(TAG, "processMessage 接收消息....");
-                if (message.getBodies().size() > 0) {//如果是空消息则不接收
-                    //获取当前用户的用户名和id
-                    final String strFrom = message.getFrom();
-                    Log.d(TAG, "processMessage 接收消息....");
-                    String fromId = strFrom.split("@")[0];
-                    final String _userId = LiteChat.chatClient.getConfig(ChatCode.KEY_USER_ID);
-                    if (!fromId.equals(_userId)) {
-                        String messageBody = message.getBody();
-                        if (messageBody != null) {
-                            ChatMessage chatMessage = new ChatMessage();
-                            //解析接收到的消息体
-                            try {
-                                JSONObject jsonObject = new JSONObject(message.getBody());
-                                String sendUserId = jsonObject.getString("sendUserId");
-                                String sendUserName = jsonObject.getString("sendUserName");
-                                String sendUserIcon = jsonObject.getString("headIcon");
-                                chatMessage.setFromId(sendUserId);
-                                chatMessage.setHeadIcon(sendUserIcon);
-                                chatMessage.setFromName(sendUserName);
-                                parseMessage(chatMessage, jsonObject);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            //对消息内容包装成界面需要的实体类型
-                            packSigleMessageEntity(chatMessage, _userName, _userId);
-                            /**封装回执消息体*/
-                            packReceiptMessage(message, chatMessage);
+                String fromId = strFrom.split("@")[0];
+                final String _userId = LiteChat.chatClient.getConfig(ChatCode.KEY_USER_ID);
+                if (!fromId.equals(_userId)) {
+                    String messageBody = message.getBody();
+                    if (messageBody != null) {
+                        ChatMessage chatMessage = new ChatMessage();
+                        //解析接收到的消息体
+                        try {
+                            JSONObject jsonObject = new JSONObject(message.getBody());
+                            String sendUserId = jsonObject.getString("sendUserId");
+                            String sendUserName = jsonObject.getString("sendUserName");
+                            String sendUserIcon = jsonObject.getString("headIcon");
+                            chatMessage.setFromId(sendUserId);
+                            chatMessage.setHeadIcon(sendUserIcon);
+                            chatMessage.setFromName(sendUserName);
+                            parseMessage(chatMessage, jsonObject);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        //对消息内容包装成界面需要的实体类型
+                        packSigleMessageEntity(chatMessage, _userName, _userId);
+                        /**封装回执消息体*/
+                        packReceiptMessage(message, chatMessage);
 //                            /***接收消息完成，存储至消息数据库，同时判断，消息窗体的数量，更新session-----------------start*/
 //                            mTable.save(chatMessage);
-                            Log.d(TAG, "processMessage....保存完成消息");
-                            int count = 0;
-                            //是否绑定消息聊天页面
-                            if (!isBindOpenChatId(String.valueOf(chatMessage.getFromId()))) {
-                                count++;
-                            }
-                            //--通知SessionManager--创建更新Sessioin-----------------
-                            if (LiteChat.chatClient.getSessionManager() != null) {
-                                LiteChat.chatClient.getSessionManager().postSession(
-                                        SessionItem.toSessionItem(chatMessage), count);
-                            }
-                            if (count > 0) {
-                                if (LiteChat.chatClient.getNotifyManager() != null) {
-                                    LiteChat.chatClient.getNotifyManager().playChatMessage(false,
-                                            chatMessage.getFromId(), chatMessage.getFromName(), "");
-                                }
-                            }
-                            //------END------------------------------------------
-                            notifyMessageListener(chatMessage);
-                            /***接收消息完成，存储至消息数据库，同时判断，消息窗体的数量，更新session-----------------end*/
+                        Log.d(TAG, "processMessage....保存完成消息");
+                        int count = 0;
+                        //是否绑定消息聊天页面
+                        if (!isBindOpenChatId(String.valueOf(chatMessage.getFromId()))) {
+                            count++;
                         }
+                        //--通知SessionManager--创建更新Sessioin-----------------
+                        if (LiteChat.chatClient.getSessionManager() != null) {
+                            LiteChat.chatClient.getSessionManager().postSession(
+                                    SessionItem.toSessionItem(chatMessage), count);
+                        }
+                        if (count > 0) {
+                            if (LiteChat.chatClient.getNotifyManager() != null) {
+                                LiteChat.chatClient.getNotifyManager().playChatMessage(false,
+                                        chatMessage.getFromId(), chatMessage.getFromName(), "");
+                            }
+                        }
+                        //------END------------------------------------------
+                        notifyMessageListener(chatMessage);
+                        /***接收消息完成，存储至消息数据库，同时判断，消息窗体的数量，更新session-----------------end*/
                     }
                 }
             }
