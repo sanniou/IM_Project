@@ -9,6 +9,8 @@ import com.lib_im.pro.im.listener.OnReceiptRefreshListener;
 import com.lib_im.pro.im.listener.OnRoomChatRecordListener;
 import com.lib_im.pro.im.listener.RefreshViewListener;
 
+import org.jivesoftware.smack.AbstractXMPPConnection;
+
 import java.util.List;
 
 /**
@@ -26,6 +28,8 @@ public interface ChatMsgManager<T> {
      * @descript 初始化聊天API相关
      */
     void initIm();
+
+    void initIm(AbstractXMPPConnection connection);
 
     /**
      * 设置当前用户

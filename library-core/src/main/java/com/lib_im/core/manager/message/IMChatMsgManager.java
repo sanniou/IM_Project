@@ -22,6 +22,7 @@ import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat.Chat;
+import org.jivesoftware.smack.chat.ChatManager;
 import org.jivesoftware.smack.chat.ChatManagerListener;
 import org.jivesoftware.smack.chat.ChatMessageListener;
 import org.jivesoftware.smack.filter.StanzaFilter;
@@ -122,18 +123,16 @@ public class IMChatMsgManager implements ChatMsgManager,
      * @descript
      */
     @Override
-    public void initIm() {
-        connection = XmppTool.getInstance().getConnection();
-        if (connection != null) {
-            smackChatManager = org.jivesoftware.smack.chat.ChatManager.getInstanceFor(connection);
-            smackChatManager.addChatListener(this);
-            StanzaFilter stanzaFilter = new StanzaTypeFilter(Stanza.class);
-            connection.addSyncStanzaListener(this, stanzaFilter);
-            //消息回执添加监听器操作
-            deliveryReceiptManager = DeliveryReceiptManager.getInstanceFor(connection);
-            //deliveryReceiptManager.dontAutoAddDeliveryReceiptRequests();
-            deliveryReceiptManager.addReceiptReceivedListener(this);
-        }
+    public void initIm(AbstractXMPPConnection connection) {
+        this.connection = connection;
+        smackChatManager = ChatManager.getInstanceFor(connection);
+        smackChatManager.addChatListener(this);
+        StanzaFilter stanzaFilter = new StanzaTypeFilter(Stanza.class);
+        connection.addSyncStanzaListener(this, stanzaFilter);
+        //消息回执添加监听器操作
+        deliveryReceiptManager = DeliveryReceiptManager.getInstanceFor(connection);
+        //deliveryReceiptManager.dontAutoAddDeliveryReceiptRequests();
+        deliveryReceiptManager.addReceiptReceivedListener(this);
     }
 
     /**
