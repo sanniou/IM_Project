@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:padding="10dp">
+
+    <TextView
+        android:id="@+id/chat_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2016/6/27 12:00"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="10dp"
+        android:textColor="@color/app_gray"/>
+    <!-- ////////////////////////左边消息布局/////////////////////////////////////-->
+    <RelativeLayout
+        android:id="@+id/left_chatLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        >
+        <com.lib_im.pro.ui.widget.view.CircleImageView
+            android:id="@+id/left_messageHeadIcon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@mipmap/default_avatar"
+            android:visibility="gone"
+            />
+        <TextView
+            android:id="@+id/left_chatName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_alignBaseline="@+id/left_messageHeadIcon"
+            android:layout_toRightOf="@+id/left_messageHeadIcon"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/left_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            android:background="@mipmap/left_news"
+            android:layout_below="@+id/left_chatName"
+            android:layout_toRightOf="@id/left_messageHeadIcon"
+            android:layout_margin="5dp"
+            android:gravity="center_vertical"
+            >
+
+            <TextView
+                android:id="@+id/left_messageText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_margin="5dp"
+                android:visibility="gone"/>
+
+            <RelativeLayout
+                android:id="@+id/left_messageVoiceLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                >
+                <ImageView
+                    android:id="@+id/left_messageVoice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:src="@mipmap/v_anim333"
+                    />
+                <TextView
+                    android:id="@+id/left_messageVoiceCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_toRightOf="@id/left_messageVoice"
+                    android:layout_centerVertical="true"/>
+                <ImageView
+                    android:id="@+id/left_voice_mark"
+                    android:layout_width="5dp"
+                    android:layout_height="5dp"
+                    android:src="@mipmap/remind"
+                    android:layout_alignParentTop="true"
+                    android:layout_toRightOf="@+id/left_messageVoiceCount"
+                    android:visibility="gone"/>
+
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/left_messageImage"
+                android:layout_width="70dp"
+                android:layout_height="100dp"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+    <!-- ////////////////////////左边消息布局/////////////////////////////////////-->
+
+
+    <!-- ////////////////////////右边消息布局/////////////////////////////////////-->
+
+    <RelativeLayout
+        android:id="@+id/right_chatLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:gravity="right"
+        android:visibility="gone"
+        >
+
+        <com.lib_im.pro.ui.widget.view.CircleImageView
+            android:id="@+id/right_messageHeadIcon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@mipmap/default_avatar"
+            android:layout_alignParentRight="true"
+            android:visibility="gone"/>
+        <TextView
+            android:id="@+id/right_chatName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/right_messageHeadIcon"
+            android:layout_toLeftOf="@+id/right_messageHeadIcon"
+            android:visibility="invisible"
+            />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/right_chatName"
+            android:layout_toLeftOf="@id/right_messageHeadIcon"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/right_send_failed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/sendfail"
+                android:layout_marginRight="10dp"
+                android:visibility="gone"/>
+            <ProgressBar
+                android:id="@+id/right_sendMsg_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_marginRight="10dp"
+                android:visibility="gone"
+                />
+
+            <TextView
+                android:id="@+id/right_send_success"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="已读"
+                android:textSize="12sp"
+                android:visibility="gone"
+                />
+
+            <LinearLayout
+                android:id="@+id/right_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="visible"
+                android:background="@mipmap/right_news"
+                android:layout_margin="5dp"
+                android:gravity="center_vertical"
+
+
+                >
+                <TextView
+                    android:id="@+id/right_messageText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_margin="5dp"
+                    android:visibility="gone"
+                    android:textColor="@android:color/black"/>
+
+                <RelativeLayout
+                    android:id="@+id/right_messageVoiceLayout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    >
+                    <TextView
+                        android:id="@+id/right_messageVoiceLength"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        />
+                    <ImageView
+                        android:id="@+id/right_messageVoice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp"
+                        android:src="@mipmap/v_anim3"
+                        android:layout_marginLeft="20dp"
+                        />
+                </RelativeLayout>
+
+                <ImageView
+                    android:id="@+id/right_messageImage"
+                    android:layout_width="70dp"
+                    android:layout_height="100dp"
+                    android:visibility="gone"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+</LinearLayout>

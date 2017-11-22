@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:clickable="true"
+    android:layout_height="?android:attr/actionBarSize"
+    android:padding="5dp"
+    android:background="@color/app_white"
+    >
+
+    <com.lib_im.pro.ui.widget.view.CircleImageView
+        android:id="@+id/group_member_head"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@mipmap/default_avatar"
+        />
+
+    <TextView
+        android:id="@+id/group_member_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@+id/group_member_head"
+        android:text="昵称"
+        android:layout_centerVertical="true"
+        android:textSize="18sp"
+        />
+    <ImageView
+        android:id="@+id/group_member_check"
+        android:layout_width="25dp"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:layout_alignParentRight="true"
+        android:src="@mipmap/member_uncheck"
+        />
+</RelativeLayout>

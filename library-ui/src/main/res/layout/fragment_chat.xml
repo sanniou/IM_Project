@@ -1,0 +1,165 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.lib_im.pro.ui.chat.ChatActivity">
+
+    <RelativeLayout
+        android:id="@+id/im_chat_title_layout"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:background="@color/app_white">
+
+        <ImageView
+            android:id="@+id/im_chat_title_back_image"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:padding="5dp"
+            android:adjustViewBounds="true"
+            android:src="@mipmap/back" />
+
+        <TextView
+            android:id="@+id/im_chat_title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="聊天"
+            android:textColor="@color/app_black"
+            android:textSize="20sp" />
+        <ImageView
+            android:id="@+id/im_chat_title_self_icon"
+            android:layout_width="20dp"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:src="@mipmap/person"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"/>
+
+    </RelativeLayout>
+
+    <com.lib_im.pro.ui.widget.swipe.LSwipeRefreshLayout
+        android:id="@+id/refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@+id/chat_listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:cacheColorHint="#00000000"
+            android:divider="@null"
+            android:listSelector="@android:color/transparent"
+            android:scrollbars="vertical"
+            />
+    </com.lib_im.pro.ui.widget.swipe.LSwipeRefreshLayout>
+
+    <RelativeLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF">
+
+        <LinearLayout
+            android:id="@+id/msgLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:background="#fff9f9f9"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/chatVoiceImage"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginLeft="5dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                android:src="@mipmap/voice" />
+
+            <EditText
+                android:id="@+id/chat_edit_message_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="15dp"
+                android:layout_weight="1"
+                android:background="@mipmap/im_chat_edit"
+                android:padding="3sp"
+                android:textSize="14sp" />
+
+            <library.san.library_ui.utils.recorder.AudioRecorderButton
+                android:id="@+id/chat_recoder_voice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginBottom="6px"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="6px"
+                android:layout_weight="1"
+                android:background="@mipmap/im_chat_edit"
+                android:gravity="center"
+                android:text="按住说话"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <ImageButton
+                android:id="@+id/chat_addBtn"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitXY"
+                android:src="@mipmap/add_send" />
+
+            <Button
+                android:id="@+id/chat_sendBtn"
+                android:layout_width="50dp"
+                android:layout_height="30dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/button_selector"
+                android:text="发送"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/chat_bottom_image_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/msgLayout"
+            android:layout_marginBottom="10sp"
+            android:layout_marginTop="10sp"
+            android:paddingBottom="5px"
+            android:paddingLeft="10dp"
+            android:visibility="gone">
+
+            <ImageButton
+                android:id="@+id/takePhoto"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitCenter"
+                android:src="@mipmap/photograph" />
+
+            <ImageButton
+                android:id="@+id/choosePicture"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_marginLeft="20dp"
+                android:layout_toRightOf="@+id/takePhoto"
+                android:background="@android:color/transparent"
+                android:scaleType="fitCenter"
+                android:src="@mipmap/picture" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+</LinearLayout>

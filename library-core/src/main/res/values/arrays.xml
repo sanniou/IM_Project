@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="db_table">
+        <item>com.lib_im.pro.db.TableKeyValue</item>
+        <item>com.lib_im.pro.entity.DataEntity</item>
+        <item>com.lib_im.pro.entity.GroupContact</item>
+        <item>com.lib_im.pro.entity.Contact</item>
+        <item>com.lib_im.pro.entity.SessionItem</item>
+        <item>com.lib_im.pro.entity.ChatMessage</item>
+    </string-array>
+</resources>

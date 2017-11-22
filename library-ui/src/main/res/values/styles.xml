@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--<style name="AudioDialog" parent="@android:style/Theme.Dialog">&lt;!&ndash;自定义对话框风格&ndash;&gt;-->
+        <!--<item name="android:windowBackground">@android:color/transparent</item>-->
+        <!--<item name="android:windowFrame">@null</item>-->
+        <!--<item name="android:windowIsFloating">true</item>-->
+        <!--<item name="android:windowIsTranslucent">true</item>-->
+        <!--<item name="android:backgroundDimEnabled">false</item>-->
+    <!--</style>-->
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@color/background_white</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/text_black</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:screenOrientation">portrait</item>
+        <item name="android:dialogTheme">@style/ApplicationDialog</item>
+    </style>
+
+    <style name="AppTransparentTheme" parent="AppTheme">
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@color/app_translucent</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <!--全局Dialog的Theme-->
+    <style name="ApplicationDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:windowMinWidthMinor">85%</item>
+        <item name="windowMinWidthMinor">85%</item>
+        <item name="android:windowBackground">@color/app_transparent</item>
+        <item name="windowMinWidthMajor">100%</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">@color/app_color</item>
+        <item name="colorPrimaryDark">@color/app_color</item>
+    </style>
+
+    <style name="AudioDialog" parent="Theme.AppCompat.Dialog"><!--自定义Dialog风格-->
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:windowMinWidthMinor">85%</item>
+        <item name="windowMinWidthMinor">85%</item>
+        <item name="windowMinWidthMajor">100%</item>
+        <item name="android:windowBackground">@android:color/transparent</item><!--背景透明-->
+        <item name="android:windowFrame">@null</item><!--边框-->
+        <item name="android:windowIsFloating">true</item><!--是否浮现在activity之上-->
+        <item name="android:windowIsTranslucent">true</item><!--半透明-->
+        <item name="android:windowNoTitle">true</item><!--无标题-->
+        <item name="android:backgroundDimEnabled">true</item><!--模糊-->
+    </style>
+
+    <!--TitleView-->
+    <style name="title_style">
+        <item name="android:id">@id/title_view</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:minHeight">?android:attr/actionBarSize</item>
+        <item name="android:layout_height">?android:attr/actionBarSize</item>
+        <item name="android:background">@color/app_color</item>
+        <item name="leftImage">@mipmap/back</item>
+        <item name="leftId">@id/title_left</item>
+        <item name="leftOnClick">onBackClick</item>
+        <item name="showLeft">true</item>
+        <item name="showRight">false</item>
+        <item name="rightId">@id/title_right</item>
+        <item name="rightColor">@color/text_orange</item>
+        <item name="rightSize">14dp</item>
+        <item name="titleColor">@android:color/black</item>
+        <item name="titleSize">20sp</item>
+        <item name="viewPadding">10dp</item>
+        <item name="titleText">标题</item>
+    </style>
+
+    <style name="tab_line">
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">2px</item>
+        <item name="android:background">@color/app_gray</item>
+    </style>
+
+
+    <style name="button_blue_style">
+        <item name="android:text">按钮</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/app_white</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="radius">10dp</item>
+        <item name="normalBackgroundColor">@color/app_blue</item>
+    </style>
+
+    <style name="button_white_style" parent="button_blue_style">
+        <item name="android:textColor">@color/app_gray</item>
+        <item name="normalBackgroundColor">@color/app_white</item>
+    </style>
+
+    <!--spinner 设置 android:theme="@style/SpinnerStyle" 即可-->
+    <style name="spinner_style">
+        <item name="colorControlNormal">@color/app_orange</item> <!--改变了spinner的颜色  -->
+    </style>
+
+</resources>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">@color/app_color</color>
+    <color name="colorPrimaryDark">@color/app_color</color>
+    <color name="colorAccent">@color/app_blue</color>
+
+    <color name="app_color">@color/app_white</color>
+
+    <color name="app_white">#FFFFFF</color>
+    <color name="app_white2">#F0F0F0</color>
+    <color name="app_white3">#EFF1FF</color>
+    <color name="app_blue">#3396EF</color>
+    <color name="app_violet">#B572D6</color>
+    <color name="app_green">#0CBBC8</color>
+    <color name="app_orange">#ED5E0A</color>
+    <color name="app_red">#E92100</color>
+    <color name="app_yellow">#F39800</color>
+    <color name="app_gold">#D7CD29</color>
+    <color name="app_gray">#666666</color>
+    <color name="app_gray2">#cccccc</color>
+    <color name="app_black">#262626</color>
+    <color name="app_bg">@color/app_white2</color>
+    <color name="app_black2">#28323B</color>
+    <color name="app_transparent">#00000000</color>
+    <color name="app_translucent">#66000000</color>
+
+    <color name="background_white">@color/app_white2</color>
+    <color name="text_blue2">@color/app_blue</color>
+    <color name="text_blue">#00ADE9</color>
+    <color name="text_normal">@color/app_gray</color>
+    <color name="text_black">@color/app_black</color>
+    <color name="text_orange">@color/app_red</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="gray_setting">#ff959595</color>
+    <color name="gray">#d6d6d6</color>
+    <color name="gray_bg">#666666</color>
+</resources>

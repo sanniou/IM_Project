@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:clickable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:layout_height="wrap_content"
+    android:padding="5dp"
+    android:background="@color/app_white">
+
+    <com.lib_im.pro.ui.widget.view.CircleImageView
+        android:id="@+id/group_head"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@mipmap/default_avatar"/>
+
+    <TextView
+        android:id="@+id/group_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/group_head"
+        android:text="黎明"
+        android:layout_marginLeft="10dp"
+        android:layout_centerVertical="true"/>
+
+</RelativeLayout>
