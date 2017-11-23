@@ -4,8 +4,8 @@ import android.app.Application;
 import android.util.Log;
 
 import com.lib_im.pro.im.api.IMRequest;
-import com.lib_im.pro.im.config.ChatCode;
-import com.lib_im.pro.im.config.XmppTool;
+import com.lib_im.core.config.ChatCode;
+import com.lib_im.core.config.XmppTool;
 import com.lib_im.pro.im.entity.GroupContact;
 import com.lib_im.pro.im.listener.OnLoginListener;
 import com.lib_im.pro.im.manager.connect.ConnectionManager;
@@ -100,7 +100,7 @@ public class IMChatClient {
 
     public void init(Application context) {
         connectManager = new IMConnectionManager(context);
-        chatManager = new IMChatMsgManager(context);
+        chatManager = new IMChatMsgManager();
         contactManger = new IMContactManger(context);
         notifyManager = new IMNotifyManager(context);
         pushManager = new IMPushManager(context);
@@ -205,7 +205,6 @@ public class IMChatClient {
             chatManager.removeChatAboutListener();
             connection.disconnect(new Presence(Presence.Type.unavailable));
             connection = null;
-            ChatCode.conMap.clear();
             notifyManager.cancelNotation();
         } catch (SmackException.NotConnectedException e) {
             e.printStackTrace();

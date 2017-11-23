@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.lib_im.pro.R;
-import com.lib_im.pro.im.config.ChatCode;
+import com.lib_im.core.config.ChatCode;
 import com.lib_im.pro.im.listener.HandleGroupListener;
 import com.lib_im.pro.im.listener.IMGroupListener;
 import com.lib_im.pro.im.listener.OnLoadListener;

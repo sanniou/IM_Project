@@ -1,10 +1,13 @@
-package com.lib_im.pro.im.config;
+package com.lib_im.core.config;
 
 /**
  * Created by songgx on 2016/6/16.
  */
 
+import android.support.annotation.NonNull;
 import android.util.Log;
+
+import com.lib_im.core.ChatClientConfig;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -39,6 +42,8 @@ import org.jivesoftware.smackx.xdata.provider.DataFormProvider;
 import org.jivesoftware.smackx.xevent.provider.MessageEventProvider;
 import org.jivesoftware.smackx.xhtmlim.provider.XHTMLExtensionProvider;
 import org.jivesoftware.smackx.xroster.provider.RosterExchangeProvider;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 /**
  * xmpp 工具类
@@ -47,62 +52,42 @@ import org.jivesoftware.smackx.xroster.provider.RosterExchangeProvider;
  */
 public class XmppTool {
 
-    private static XmppTool xmppTool = new XmppTool();
-
-    public static XmppTool getInstance() {
-        return xmppTool;
-    }
-
     /**
-     * 创建连接
+     * 客户端连接 openfire 服务配置信息
      */
-    public AbstractXMPPConnection getConnection() {
-        AbstractXMPPConnection con;
-        if (ChatCode.conMap.size() == 0) {
-            registerSmackProviders();
-            con = setOpenFireConnectionConfig();
-            if (con != null) {
-                ChatCode.conMap.put("xmppcon", con);
-            }
-        } else {
-            con = (AbstractXMPPConnection) ChatCode.conMap.get("xmppcon");
-        }
+    public static AbstractXMPPConnection setOpenFireConnectionConfig(
+            @NonNull ChatClientConfig config)
+            throws XmppStringprepException {
+        registerSmackProviders();
+        XMPPTCPConnectionConfiguration.Builder builder = XMPPTCPConnectionConfiguration
+                .builder();
+        builder.setConnectTimeout(config.getConnectTimeOut())
+               .setSendPresence(false)
+               .setHost(config.getServerHost())
+               .setPort(config.getServerPort())
+               .setResource(config.getClientName())
+               .setDebuggerEnabled(config.getDebugg())
+               .setServiceName(JidCreate.domainBareFrom(config.getServerName()))
+               .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
+        XMPPTCPConnectionConfiguration configuration = builder.build();
+        AbstractXMPPConnection con = new XMPPTCPConnection(configuration);
+        con.setPacketReplyTimeout(config.getConnectTimeOut());
+        XMPPTCPConnection.setUseStreamManagementDefault(true);
+        SmackConfiguration.setDefaultReplyTimeout(config.getConnectTimeOut());
+        PingManager pingManager = PingManager.getInstanceFor(con);
+        pingManager.setPingInterval(config.getPingInterval());
+        // ping 服务器失败时的回调
+        pingManager.registerPingFailedListener(() -> {
+
+        });
         return con;
-    }
-
-    /**
-     * @descript 客户端连接openfire服务配置信息
-     */
-    private AbstractXMPPConnection setOpenFireConnectionConfig() {
-        if (ChatCode.XMPP_SERVER != null && ChatCode.XMPP_SERVER_NAME != null) {
-            XMPPTCPConnectionConfiguration.Builder builder = XMPPTCPConnectionConfiguration
-                    .builder();
-            builder.setConnectTimeout(ChatCode.PACKET_TIMEOUT)
-                   .setSendPresence(false)
-                   .setHost(ChatCode.XMPP_SERVER)
-                   .setPort(ChatCode.XMPP_PORT)
-                   .setResource(ChatCode.XMPP_IDENTITY_NAME)
-                   .setDebuggerEnabled(true)
-                   .setServiceName(ChatCode.XMPP_SERVER_NAME)
-                   .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
-            XMPPTCPConnectionConfiguration configuration = builder.build();
-            AbstractXMPPConnection con = new XMPPTCPConnection(configuration);
-            con.setPacketReplyTimeout(ChatCode.PACKET_TIMEOUT);
-            XMPPTCPConnection.setUseStreamManagementDefault(true);
-            SmackConfiguration.setDefaultPacketReplyTimeout(ChatCode.PACKET_TIMEOUT);
-            PingManager pingManager = PingManager.getInstanceFor(con);
-            pingManager.setPingInterval(0);
-            return con;
-        } else {
-            return null;
-        }
 
     }
 
     /**
      * 做一些基本的配置
      */
-    public static void registerSmackProviders() {
+    private static void registerSmackProviders() {
         // add IQ handling // Service Discovery # Info
         ProviderManager.addIQProvider("query", "http://jabber.org/protocol/disco#info",
                 new DiscoverInfoProvider());

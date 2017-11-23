@@ -9,7 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import library.san.library_ui.entity.UserInfo;
-import com.lib_im.pro.im.config.ChatCode;
+import com.lib_im.core.config.ChatCode;
 import com.lib_im.pro.im.listener.OnLoginListener;
 import com.lib_im.pro.rx.SimpleListObserver;
 import com.lib_im.pro.ui.base.BaseActivity;

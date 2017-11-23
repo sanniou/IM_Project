@@ -8,7 +8,7 @@ import com.lib_im.pro.R;
 import library.san.library_ui.db.BaseDao;
 import library.san.library_ui.db.DataBaseHelper;
 import library.san.library_ui.entity.Contact;
-import com.lib_im.pro.im.config.ChatCode;
+import com.lib_im.core.config.ChatCode;
 import com.lib_im.pro.im.listener.IMContactListener;
 import com.lib_im.pro.im.listener.OnLoadListener;
 import com.lib_im.pro.rx.SimpleListCompleteObserver;

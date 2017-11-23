@@ -1,15 +1,14 @@
 package com.lib_im.pro.im.manager.message;
 
-import android.content.Context;
 import android.util.Log;
 
-import com.lib_im.pro.im.config.ChatCode;
-import com.lib_im.pro.im.config.XmppTool;
+import com.lib_im.core.manager.message.IMMessageListener;
+import com.lib_im.core.manager.message.OnChatRecordListener;
+import com.lib_im.core.config.ChatCode;
+import com.lib_im.core.config.XmppTool;
 import com.lib_im.pro.im.listener.HistoryMessageListener;
-import com.lib_im.pro.im.listener.IMMessageListener;
 import com.lib_im.pro.im.listener.MessageCallBack;
 import com.lib_im.pro.im.listener.MessageStateListener;
-import com.lib_im.pro.im.listener.OnChatRecordListener;
 import com.lib_im.pro.im.listener.OnReceiptRefreshListener;
 import com.lib_im.pro.im.listener.OnRoomChatRecordListener;
 import com.lib_im.pro.im.listener.RefreshViewListener;
@@ -30,6 +29,7 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.MultiUserChatException;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
 import org.jivesoftware.smackx.offline.OfflineMessageManager;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
@@ -37,6 +37,10 @@ import org.jivesoftware.smackx.receipts.DeliveryReceiptRequest;
 import org.jivesoftware.smackx.receipts.ReceiptReceivedListener;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jxmpp.jid.EntityBareJid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.jid.parts.Resourcepart;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,9 +65,8 @@ import library.san.library_ui.utils.LogUtils;
  * 聊天管理器
  * Created by songgx on 16/6/15.
  */
-public class IMChatMsgManager implements ChatMsgManager<ChatMessage>,
-        ChatManagerListener, StanzaListener, ReceiptReceivedListener,
-        org.jivesoftware.smack.MessageListener {
+public class IMChatMsgManager implements ChatMsgManager, ChatManagerListener, StanzaListener,
+        ReceiptReceivedListener, org.jivesoftware.smack.MessageListener {
 
     private AbstractXMPPConnection connection;
     private List<IMMessageListener> mIMMessageListeners = new ArrayList<>();
@@ -75,17 +78,15 @@ public class IMChatMsgManager implements ChatMsgManager<ChatMessage>,
     private List<RefreshViewListener> mRefreshViewListeners = new ArrayList<>();
     private List<MultiUserChat> roomChatList = new ArrayList<>();
 
-    private Context mContext;
-
     private String mChatUserId = "";
 
     private final String TAG = "IMChatMsgManager";
     private org.jivesoftware.smack.chat.ChatManager smackChatManager;
 
-    private DeliveryReceiptManager deliveryReceiptManager;//消息回执管理器
+    //消息回执管理器
+    private DeliveryReceiptManager deliveryReceiptManager;
 
-    public IMChatMsgManager(Context context) {
-        mContext = context;
+    public IMChatMsgManager() {
 
     }
 
@@ -486,10 +487,12 @@ public class IMChatMsgManager implements ChatMsgManager<ChatMessage>,
         if (connection != null && connection.isConnected()) {
             MultiUserChatManager multiUserChatManager = MultiUserChatManager
                     .getInstanceFor(connection);
-            MultiUserChat multiUserChat = multiUserChatManager.getMultiUserChat(jid);
+            //需要链接的用户名@服务器名
             try {
+                EntityBareJid entityBareJid = JidCreate.entityBareFrom(jid + "@bbb");
+                MultiUserChat multiUserChat = multiUserChatManager.getMultiUserChat(entityBareJid);
                 Log.e(TAG, "初始化聊天室>>>>>>>>>>>>>>>>>" + jid + Thread.currentThread().getName());
-                multiUserChat.join(nickName);
+                multiUserChat.join(Resourcepart.from(nickName));
                 multiUserChat.addMessageListener(this);
                 roomChatList.add(multiUserChat);
                 ChatCode.roomMap.put(jid, multiUserChat);
@@ -499,6 +502,12 @@ public class IMChatMsgManager implements ChatMsgManager<ChatMessage>,
             } catch (SmackException.NotConnectedException e) {
                 e.printStackTrace();
             } catch (SmackException.NoResponseException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (XmppStringprepException e) {
+                e.printStackTrace();
+            } catch (MultiUserChatException.NotAMucServiceException e) {
                 e.printStackTrace();
             }
         }
@@ -680,14 +689,15 @@ public class IMChatMsgManager implements ChatMsgManager<ChatMessage>,
         }
     }
 
-         //初始化推送通知管理器
+    //初始化推送通知管理器
     private void initNotify(Class<?> cls) {
         String _appName = "水泊梁山";
-        PushManager pushManager=LiteChat.chatClient.getPushManager();
+        PushManager pushManager = LiteChat.chatClient.getPushManager();
         pushManager.setNotifyLink(_appName, R.drawable.icon, "", cls);
         pushManager.setBell(Boolean.TRUE);
         pushManager.setVibrate(Boolean.FALSE);
     }
+
     @Override
     public void onReceiptReceived(String fromJid, String toJid, String receiptId, Stanza stanza) {
         // TODO 消息回执逻辑实现思路，在对方收到消息后，标记已读后发送消息至初始发送消息方来更新界面上的消息状态

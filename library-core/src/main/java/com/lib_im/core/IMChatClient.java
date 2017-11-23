@@ -3,21 +3,23 @@ package com.lib_im.core;
 import android.app.Application;
 import android.util.Log;
 
+import com.lib_im.core.config.ChatCode;
+import com.lib_im.core.config.XmppTool;
 import com.lib_im.core.manager.connect.ConnectionManager;
 import com.lib_im.core.manager.contact.IMContactManger;
 import com.lib_im.core.manager.group.IMGroupContactManger;
 import com.lib_im.core.manager.message.IMChatMsgManager;
 import com.lib_im.core.manager.notify.IMNotifyManager;
 import com.lib_im.core.manager.notify.IMPushManager;
-import com.lib_im.pro.im.config.ChatCode;
-import com.lib_im.pro.im.config.XmppTool;
 import com.lib_im.pro.im.listener.OnLoginListener;
 import com.lib_im.pro.retrofit.exception.ApiErrorException;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
+import org.jivesoftware.smack.ReconnectionManager;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -81,8 +83,13 @@ public class IMChatClient {
         return sChatClient;
     }
 
-    public void init(ChatClientConfig config, Application context) {
+    public void init(@NonNull ChatClientConfig config, @NonNull Application context) {
         mConfig = config;
+        try {
+            connection = XmppTool.setOpenFireConnectionConfig(config);
+        } catch (XmppStringprepException e) {
+            e.printStackTrace();
+        }
         connectManager = new ConnectionManager();
         chatManager = new IMChatMsgManager(context);
         contactManger = new IMContactManger(context);
@@ -96,8 +103,11 @@ public class IMChatClient {
      * 初始化聊天模块相关
      */
 
-    public void initChatAbout() {
+    private void initChatAbout() {
         connection.addConnectionListener(connectManager);
+        // 重连机制
+        ReconnectionManager.setDefaultFixedDelay(5);
+        ReconnectionManager.setEnabledPerDefault(true);
         chatManager.initIm();
         contactManger.initIm();
         notifyManager.initIm();
@@ -125,7 +135,6 @@ public class IMChatClient {
      */
 
     private void loginXmpp(String userName, String passWord, OnLoginListener onLoginListener) {
-        connection = XmppTool.getInstance().getConnection();
         if (connection != null) {
             try {
                 // 首先判断是否还连接着服务器，需要先断开
@@ -191,7 +200,6 @@ public class IMChatClient {
             chatManager.removeChatAboutListener();
             connection.disconnect(new Presence(Presence.Type.unavailable));
             connection = null;
-            ChatCode.conMap.clear();
             notifyManager.cancelNotation();
         } catch (SmackException.NotConnectedException e) {
             e.printStackTrace();
@@ -283,7 +291,7 @@ public class IMChatClient {
         groupContactManager.init();
         sessionManager.init();
 
-        chatManager.setCurrentUser(user);
+        chatManager.setCurrentUser();
         sessionManager.setCurrentUser(user);
         groupContactManager.setCurrentUser(user);
         contactManger.setCurrentUser(user);

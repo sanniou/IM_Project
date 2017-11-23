@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.lib_im.pro.R;
-import com.lib_im.pro.im.config.ChatCode;
+import com.lib_im.core.config.ChatCode;
 import com.lib_im.pro.im.listener.IMContactListener;
 import com.lib_im.pro.im.listener.OnLoadListener;
 import com.lib_im.pro.rx.SimpleListCompleteObserver;

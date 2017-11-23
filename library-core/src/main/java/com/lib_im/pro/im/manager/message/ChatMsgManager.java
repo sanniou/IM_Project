@@ -1,9 +1,9 @@
 package com.lib_im.pro.im.manager.message;
 import com.lib_im.pro.im.listener.HistoryMessageListener;
-import com.lib_im.pro.im.listener.IMMessageListener;
+import com.lib_im.core.manager.message.IMMessageListener;
 import com.lib_im.pro.im.listener.MessageCallBack;
 import com.lib_im.pro.im.listener.MessageStateListener;
-import com.lib_im.pro.im.listener.OnChatRecordListener;
+import com.lib_im.core.manager.message.OnChatRecordListener;
 import com.lib_im.pro.im.listener.OnReceiptRefreshListener;
 import com.lib_im.pro.im.listener.OnRoomChatRecordListener;
 import com.lib_im.pro.im.listener.RefreshViewListener;

@@ -1,13 +1,15 @@
 package com.lib_im.pro.im.listener;
 
+import com.lib_im.core.entity.ChatMessage;
+
 /**
  * Created by songgx on 2016/6/15.
  * 消息发送成功与否的回调
  */
-public interface MessageCallBack<T> {
+public interface MessageCallBack {
 
-    void onSuccess(T msg);
+    void onSuccess(ChatMessage msg);
 
-    void onError(T msg);
+    void onError(ChatMessage msg);
 
 }

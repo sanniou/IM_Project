@@ -3,7 +3,7 @@ library.san.library_ui.api
 library.san.library_ui.db
 library.san.library_ui.entity
 com.lib_im.pro.im.client
-com.lib_im.pro.im.config
+com.lib_im.core.config
 com.lib_im.pro.im.listener
 com.lib_im.pro.im.manager.connect
 com.lib_im.pro.im.manager.contact

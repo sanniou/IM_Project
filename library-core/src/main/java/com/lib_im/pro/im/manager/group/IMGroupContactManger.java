@@ -9,7 +9,7 @@ import library.san.library_ui.db.BaseDao;
 import library.san.library_ui.db.DataBaseHelper;
 import library.san.library_ui.entity.GroupDetails;
 import library.san.library_ui.entity.GroupMember;
-import com.lib_im.pro.im.config.ChatCode;
+import com.lib_im.core.config.ChatCode;
 import library.san.library_ui.entity.ChatMessage;
 import library.san.library_ui.entity.GroupChatRecord;
 import library.san.library_ui.entity.GroupContact;

@@ -97,8 +97,7 @@ public class IMRequest {
                                                                   int rows) {
         return mImService.queryGroupChatRecord(groupId, logId, messageId, page, rows)
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<GroupChatRecord>());
+                         .subscribeOn(Schedulers.io());
     }
 
     /**

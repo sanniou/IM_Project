@@ -3,8 +3,8 @@ package com.lib_im.pro.im.manager.connect;
 import android.content.Context;
 import android.util.Log;
 
-import com.lib_im.pro.im.config.ChatCode;
-import com.lib_im.pro.im.config.XmppTool;
+import com.lib_im.core.config.ChatCode;
+import com.lib_im.core.config.XmppTool;
 import com.lib_im.pro.im.listener.IMConnectListener;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
@@ -261,7 +261,6 @@ public class IMConnectionManager implements ConnectionListener, ConnectionManage
                 connection.disconnect(new Presence(Presence.Type.unavailable));
             }
             connection = null;
-            ChatCode.conMap.clear();
             LiteChat.chatClient.getNotifyManager().cancelNotation();
         } catch (SmackException.NotConnectedException e) {
             e.printStackTrace();

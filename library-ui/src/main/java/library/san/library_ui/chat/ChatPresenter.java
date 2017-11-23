@@ -2,7 +2,7 @@ package library.san.library_ui.chat;
 
 import library.san.library_ui.entity.ChatMessage;
 import library.san.library_ui.entity.FileUpEntity;
-import com.lib_im.pro.im.config.ChatCode;
+import com.lib_im.core.config.ChatCode;
 import com.lib_im.pro.im.listener.MessageCallBack;
 import com.lib_im.pro.im.listener.StopRefreshListener;
 import com.lib_im.pro.retrofit.upload.Uploader;
@@ -24,22 +24,22 @@ import okhttp3.Call;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-import static com.lib_im.pro.im.config.ChatCode.GET_ROOM_DATA;
-import static com.lib_im.pro.im.config.ChatCode.GET_SINGLE_DATA;
-import static com.lib_im.pro.im.config.ChatCode.INIT_DATA;
-import static com.lib_im.pro.im.config.ChatCode.INIT_ROOM_DATA;
-import static com.lib_im.pro.im.config.ChatCode.INIT_SINGLE_DATA;
-import static com.lib_im.pro.im.config.ChatCode.POSITION_0;
-import static com.lib_im.pro.im.config.ChatCode.PULL_DOWN_REFRESH;
-import static com.lib_im.pro.im.config.ChatCode.REFRESH_DATA;
-import static com.lib_im.pro.im.config.ChatCode.REFRESH_ROOM_DATA;
-import static com.lib_im.pro.im.config.ChatCode.REFRESH_SINGLE_DATA;
-import static com.lib_im.pro.im.config.ChatCode.REPEAT_SEND_MSG;
-import static com.lib_im.pro.im.config.ChatCode.SEND_MSG;
-import static com.lib_im.pro.im.config.ChatCode.SEND_MSG_TYPE;
-import static com.lib_im.pro.im.config.ChatCode.messageMap;
-import static com.lib_im.pro.im.config.ChatCode.positionMap;
-import static com.lib_im.pro.im.config.ChatCode.roomCacheMsg;
+import static com.lib_im.core.config.ChatCode.GET_ROOM_DATA;
+import static com.lib_im.core.config.ChatCode.GET_SINGLE_DATA;
+import static com.lib_im.core.config.ChatCode.INIT_DATA;
+import static com.lib_im.core.config.ChatCode.INIT_ROOM_DATA;
+import static com.lib_im.core.config.ChatCode.INIT_SINGLE_DATA;
+import static com.lib_im.core.config.ChatCode.POSITION_0;
+import static com.lib_im.core.config.ChatCode.PULL_DOWN_REFRESH;
+import static com.lib_im.core.config.ChatCode.REFRESH_DATA;
+import static com.lib_im.core.config.ChatCode.REFRESH_ROOM_DATA;
+import static com.lib_im.core.config.ChatCode.REFRESH_SINGLE_DATA;
+import static com.lib_im.core.config.ChatCode.REPEAT_SEND_MSG;
+import static com.lib_im.core.config.ChatCode.SEND_MSG;
+import static com.lib_im.core.config.ChatCode.SEND_MSG_TYPE;
+import static com.lib_im.core.config.ChatCode.messageMap;
+import static com.lib_im.core.config.ChatCode.positionMap;
+import static com.lib_im.core.config.ChatCode.roomCacheMsg;
 
 /**
  * 聊天模块页面处理逻辑类似于MVP框架P模块，但是由于管理器模块已经相当于是M模块，所以这里只进行处理

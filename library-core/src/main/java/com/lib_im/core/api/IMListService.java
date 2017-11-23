@@ -3,13 +3,6 @@ package com.lib_im.core.api;
 import com.lib_im.pro.retrofit.base.BaseListResponse;
 
 import io.reactivex.Observable;
-import library.san.library_ui.entity.ChatRecord;
-import library.san.library_ui.entity.Contact;
-import library.san.library_ui.entity.GroupChatRecord;
-import library.san.library_ui.entity.GroupContact;
-import library.san.library_ui.entity.GroupDetails;
-import library.san.library_ui.entity.GroupMember;
-import library.san.library_ui.entity.UserInfo;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 

@@ -14,7 +14,7 @@ import android.widget.Button;
 
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.lib_im.pro.LiteChat;
-import com.lib_im.pro.im.config.ChatCode;
+import com.lib_im.core.config.ChatCode;
 import com.lib_im.pro.im.listener.IMConnectListener;
 import com.lib_im.pro.im.manager.connect.ConnectionManager;
 import com.lib_im.pro.ui.base.BaseActivity;

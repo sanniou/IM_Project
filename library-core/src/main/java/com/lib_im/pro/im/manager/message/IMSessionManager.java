@@ -5,7 +5,7 @@ import android.content.Context;
 import library.san.library_ui.db.BaseDao;
 import library.san.library_ui.db.DataBaseHelper;
 import library.san.library_ui.entity.SessionItem;
-import com.lib_im.pro.im.config.ChatCode;
+import com.lib_im.core.config.ChatCode;
 import com.lib_im.pro.im.listener.IMSessionListener;
 import com.lib_im.pro.im.listener.RefreshDataListener;
 

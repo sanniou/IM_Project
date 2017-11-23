@@ -27,9 +27,9 @@ import com.lib_im.pro.R;
 import library.san.library_ui.entity.ChatMessage;
 import library.san.library_ui.entity.FileUpEntity;
 import com.lib_im.pro.im.listener.HistoryMessageListener;
-import com.lib_im.pro.im.listener.IMMessageListener;
+import com.lib_im.core.manager.message.IMMessageListener;
 import com.lib_im.pro.im.listener.MessageStateListener;
-import com.lib_im.pro.im.listener.OnChatRecordListener;
+import com.lib_im.core.manager.message.OnChatRecordListener;
 import com.lib_im.pro.im.listener.OnRoomChatRecordListener;
 import com.lib_im.pro.im.listener.RefreshViewListener;
 import com.lib_im.pro.im.listener.StopRefreshListener;
@@ -48,16 +48,16 @@ import library.san.library_ui.group.GroupDetailsActivity;
 import library.san.library_ui.widget.swipe.LSwipeRefreshLayout;
 import library.san.library_ui.widget.swipe.SwipeView;
 
-import static com.lib_im.pro.im.config.ChatCode.CHOOSE_PIC;
-import static com.lib_im.pro.im.config.ChatCode.INIT_DATA;
-import static com.lib_im.pro.im.config.ChatCode.POSITION_0;
-import static com.lib_im.pro.im.config.ChatCode.PULL_DOWN_REFRESH;
-import static com.lib_im.pro.im.config.ChatCode.REFRESH_DATA;
-import static com.lib_im.pro.im.config.ChatCode.SEND_MSG;
-import static com.lib_im.pro.im.config.ChatCode.SEND_MSG_TYPE;
-import static com.lib_im.pro.im.config.ChatCode.TAKE_PHOTO;
-import static com.lib_im.pro.im.config.ChatCode.messageMap;
-import static com.lib_im.pro.im.config.ChatCode.positionMap;
+import static com.lib_im.core.config.ChatCode.CHOOSE_PIC;
+import static com.lib_im.core.config.ChatCode.INIT_DATA;
+import static com.lib_im.core.config.ChatCode.POSITION_0;
+import static com.lib_im.core.config.ChatCode.PULL_DOWN_REFRESH;
+import static com.lib_im.core.config.ChatCode.REFRESH_DATA;
+import static com.lib_im.core.config.ChatCode.SEND_MSG;
+import static com.lib_im.core.config.ChatCode.SEND_MSG_TYPE;
+import static com.lib_im.core.config.ChatCode.TAKE_PHOTO;
+import static com.lib_im.core.config.ChatCode.messageMap;
+import static com.lib_im.core.config.ChatCode.positionMap;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -65,7 +65,7 @@ import static com.lib_im.pro.im.config.ChatCode.positionMap;
 @Route(path = ChatActivity.ROUTE_PATH)
 public class ChatActivity extends PermissionActivity implements
         HistoryMessageListener, IMMessageListener<ChatMessage>,
-        OnRoomChatRecordListener<List<ChatMessage>>, OnChatRecordListener<List<ChatMessage>>,
+        OnRoomChatRecordListener<List<ChatMessage>>, OnChatRecordListener,
         View.OnClickListener, MessageStateListener<ChatMessage>,
         RefreshViewListener<ChatMessage>, StopRefreshListener {
     /**

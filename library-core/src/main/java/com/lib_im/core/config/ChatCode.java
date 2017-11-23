@@ -1,4 +1,6 @@
-package com.lib_im.pro.im.config;
+package com.lib_im.core.config;
+
+import com.lib_im.core.entity.ChatMessage;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,57 +21,11 @@ public class ChatCode {
     /**
      * 用户昵称
      */
-    /**
-     * 用户昵称
-     */
-    public static final String KEY_USER_PASS = "key_user_pass";
+
     /**
      * 用户密码
      */
-    public static final int ERROR_DISCONNECT_OTHER = 110;
-    /**
-     * 未知原因断开
-     */
-    public static final int ERROR_DISCONNECT_CONFLICT = 111;
-    /**
-     * 用户登录冲突
-     */
-
-    public static String XMPP_SERVER = "192.168.3.150";
-    /**
-     * openfire服务器ip
-     */
-    public static int XMPP_PORT = 5222;
-    /**
-     * openfire服务器端口
-     */
-    public static String XMPP_SERVER_NAME = "127.0.0.1";
-    /**
-     * openfire服务器名称
-     */
-    public static final String XMPP_IDENTITY_NAME = "PHONE";
-    /**
-     * 客户端名称
-     */
-    public static final int PACKET_TIMEOUT = 10000;
-    /**
-     *
-     超时时间
-     */
-    /**
-     * 退出应用全局广播
-     */
-    public static final String BROAD_EXIT_APP = "broadcast_exit_app";
-
-    /**
-     * xmpp连接对象存储集合
-     */
-    public static Map<String, Object> conMap = new HashMap<>();
-
-    /**
-     * 添加存储聊天室对象的全局map
-     */
-    public static Map<String, Object> roomMap = new HashMap<>();
+    public static final String KEY_USER_PASS = "key_user_pass";
 
     public static final int INIT_ROOM_DATA = 100;
     public static int GET_ROOM_DATA;
