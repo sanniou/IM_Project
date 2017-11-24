@@ -167,7 +167,8 @@ public class IMChatClient {
                      @Override
                      public void onNext(@NonNull List<GroupContact> groupContacts) {
                          for (GroupContact groupContact : groupContacts) {
-                             mChatManager.getGroupConversation(groupContact.getGroupJid(), nickName);
+                             mChatManager
+                                     .getGroupConversation(groupContact.getGroupJid(), nickName);
                          }
                      }
 
@@ -187,6 +188,7 @@ public class IMChatClient {
         Presence presence = new Presence(Presence.Type.available);
         //设置为"可聊天"以区分状态
         presence.setMode(Presence.Mode.chat);
+        presence.setStatus("状态可不就是签名");
         connection.sendStanza(presence);
     }
 
