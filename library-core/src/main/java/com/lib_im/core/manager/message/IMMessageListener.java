@@ -13,4 +13,8 @@ public interface IMMessageListener {
      */
     void onReceiveMessage(ChatMessage chatMessage);
 
+    void onReceiveGroupMessage(ChatMessage chatMessage);
+
+    void onReceiveReceipt(ChatMessage chatMessage);
+
 }

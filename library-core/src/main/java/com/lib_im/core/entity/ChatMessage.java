@@ -1,12 +1,8 @@
 package com.lib_im.core.entity;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
-
 /**
  * 聊天消息
  */
-@DatabaseTable(tableName = "ChatMessage")
 public class ChatMessage {
 
     /**
@@ -168,6 +164,7 @@ public class ChatMessage {
      * 0未读，1已读
      */
     private int mark;
+
     private boolean SoundPlaying = false;
 
     public ChatMessage() {

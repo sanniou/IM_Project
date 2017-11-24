@@ -122,6 +122,9 @@ public class ConnectionManager implements ConnectionListener {
         }
     }
 
+    public void destroy() {
+        mListeners.clear();
+    }
 }
 
 

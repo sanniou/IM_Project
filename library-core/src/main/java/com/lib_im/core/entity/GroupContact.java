@@ -1,9 +1,5 @@
 package com.lib_im.core.entity;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
-
-import java.io.Serializable;
 import java.util.List;
 
 public class GroupContact {

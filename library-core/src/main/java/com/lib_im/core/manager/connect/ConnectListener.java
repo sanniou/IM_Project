@@ -1,7 +1,6 @@
 package com.lib_im.core.manager.connect;
 
 /**
- * Created by songgx on 2016/6/15.
  * 连接管理器接口
  */
 public interface ConnectListener {
@@ -31,7 +30,7 @@ public interface ConnectListener {
     /**
      * 正在重新连接
      */
-    void reconnectingIn(int i);
+    void reconnectingIn(int seconds);
 
     /**
      * 重连成功

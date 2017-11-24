@@ -8,16 +8,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import library.san.library_ui.entity.UserInfo;
-import com.lib_im.core.config.ChatCode;
-import com.lib_im.pro.im.listener.OnLoginListener;
-import com.lib_im.pro.rx.SimpleListObserver;
-import com.lib_im.pro.ui.base.BaseActivity;
-import library.san.library_ui.utils.ToastUtils;
+import com.lib_im.core.retrofit.rx.SimpleObserver;
 
 import java.util.List;
 
 import io.reactivex.annotations.NonNull;
+import library.san.library_ui.base.BaseActivity;
+import library.san.library_ui.entity.UserInfo;
+import library.san.library_ui.utils.ToastUtils;
 
 public class LoginActivity extends BaseActivity implements View.OnClickListener {
 
@@ -65,7 +63,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
      */
     private void autoLogin(final String name, final String password) {
         LiteChat.imRequestManager.getListInstance().login(name, password)
-                                 .subscribe(new SimpleListObserver<UserInfo>() {
+                                 .subscribe(new SimpleObserver<List<UserInfo>() {
                                      @Override
                                      public void onNext(@NonNull List<UserInfo> list) {
                                          LiteChat.chatCache

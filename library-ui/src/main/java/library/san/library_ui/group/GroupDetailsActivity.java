@@ -16,10 +16,10 @@ import com.alibaba.android.arouter.launcher.ARouter;
 import com.lib_im.pro.R;
 import library.san.library_ui.entity.GroupDetails;
 import library.san.library_ui.entity.GroupMember;
-import com.lib_im.core.config.ChatCode;
-import com.lib_im.pro.im.listener.HandleGroupListener;
-import com.lib_im.pro.im.listener.IMGroupListener;
-import com.lib_im.pro.im.listener.OnLoadListener;
+
+import com.lib_im.core.manager.message.conversation.HandleGroupListener;
+import com.lib_im.core.manager.message.conversation.IMGroupListener;
+import com.lib_im.core.manager.message.conversation.OnLoadListener;
 import com.lib_im.pro.im.manager.group.GroupContactManager;
 import library.san.library_ui.utils.ToastUtils;
 

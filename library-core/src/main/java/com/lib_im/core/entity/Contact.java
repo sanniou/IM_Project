@@ -1,13 +1,9 @@
 package com.lib_im.core.entity;
 
-import com.j256.ormlite.field.DatabaseField;
-import com.j256.ormlite.table.DatabaseTable;
-
 /**
  * Created by songgx on 16/6/15.
  * 联系人实体
  */
-@DatabaseTable(tableName = "Contact")
 public class Contact {
 
     public String getJid() {
@@ -21,53 +17,48 @@ public class Contact {
     /**
      * openfire
      */
-    @DatabaseField
     private String jid;
     /**
      * 账号
      */
-    @DatabaseField
     private String chatUserid;
     /**
      * 用户姓名
      */
-    @DatabaseField
+
     private String name;
     /**
      * 昵称
      */
-    @DatabaseField
+
     private String nickname;
     /**
      * 头像文件名
      */
-    @DatabaseField
+
     private String headicon;
     /**
      * 性别
      */
-    @DatabaseField
+
     private String sex;
 
     /**
      * 个性签名
      */
-    @DatabaseField
+
     private String sig;
 
     /**
      * 用户类型 0：朋友  1：新的朋友(验证的和自己添加的)
      */
-    @DatabaseField
+
     private int userType = -1;
 
-    @DatabaseField
     private String groupname;
 
-    @DatabaseField
     private String groupid;
 
-    @DatabaseField
     private String friend;
 
     public String getGroupname() {

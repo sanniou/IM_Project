@@ -1,14 +1,14 @@
 package com.lib_im.core.api;
 
-import com.lib_im.pro.im.entity.ChatRecord;
-import com.lib_im.pro.im.entity.Contact;
-import com.lib_im.pro.im.entity.GroupChatRecord;
-import com.lib_im.pro.im.entity.GroupContact;
-import com.lib_im.pro.im.entity.GroupDetails;
-import com.lib_im.pro.im.entity.GroupMember;
-import com.lib_im.pro.im.entity.UserInfo;
-import com.lib_im.pro.retrofit.base.BaseListResponseMapper;
-import com.lib_im.pro.retrofit.config.IMRetrofit;
+import com.lib_im.core.retrofit.base.BaseResponseMapper;
+import com.lib_im.core.entity.ChatRecord;
+import com.lib_im.core.entity.Contact;
+import com.lib_im.core.entity.GroupChatRecord;
+import com.lib_im.core.entity.GroupContact;
+import com.lib_im.core.entity.GroupDetails;
+import com.lib_im.core.entity.GroupMember;
+import com.lib_im.core.entity.UserInfo;
+import com.lib_im.core.retrofit.config.IMRetrofit;
 
 import java.util.List;
 
@@ -23,11 +23,11 @@ import retrofit2.Retrofit;
 public class IMRequest {
 
     private static IMRequest sInstance;
-    private final IMListService mImService;
+    private final IMService mImService;
 
     private IMRequest() {
         Retrofit retrofit = IMRetrofit.getRetrofit();
-        mImService = retrofit.create(IMListService.class);
+        mImService = retrofit.create(IMService.class);
     }
 
     public static IMRequest getInstance() {
@@ -44,9 +44,9 @@ public class IMRequest {
      */
     public Observable<List<UserInfo>> login(String userName, String password) {
         return mImService.login(userName, password)
-                         //.observeOn(AndroidSchedulers.mainThread())
+                         .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<UserInfo>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -54,9 +54,9 @@ public class IMRequest {
      */
     public Observable<List<GroupContact>> queryGroupContact() {
         return mImService.queryGroupList("1")
-                         // .observeOn(AndroidSchedulers.mainThread())
+                         .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<GroupContact>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -64,9 +64,9 @@ public class IMRequest {
      */
     public Observable<List<String>> addUserToGroup(String otherUserID, String groupID) {
         return mImService.addMember(otherUserID, groupID)
-                         //.observeOn(AndroidSchedulers.mainThread())
+                         .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<String>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -74,9 +74,9 @@ public class IMRequest {
      */
     public Observable<List<String>> removeUserFromGroup(String otherUserID, String groupID) {
         return mImService.removeMember(otherUserID, groupID)
-                         // .observeOn(AndroidSchedulers.mainThread())
+                         .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<String>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -86,7 +86,7 @@ public class IMRequest {
         return mImService.queryGroupUnReadCount(groupStr)
                          .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<GroupChatRecord>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -97,7 +97,8 @@ public class IMRequest {
                                                                   int rows) {
         return mImService.queryGroupChatRecord(groupId, logId, messageId, page, rows)
                          .observeOn(AndroidSchedulers.mainThread())
-                         .subscribeOn(Schedulers.io());
+                         .subscribeOn(Schedulers.io())
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -108,7 +109,7 @@ public class IMRequest {
         return mImService.queryChatRecord(messageId, fromUserId, toUserId, page, rows)
                          .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -118,7 +119,7 @@ public class IMRequest {
         return mImService.queryGroupMember(ID, page, rows)
                          .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<GroupMember>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -128,7 +129,7 @@ public class IMRequest {
         return mImService.queryGroupDetails(ID)
                          .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<GroupDetails>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -136,9 +137,9 @@ public class IMRequest {
      */
     public Observable<List<Contact>> queryFriendList(String userType) {
         return mImService.queryFriendList(userType)
-//                .observeOn(AndroidSchedulers.mainThread())
+                         .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<Contact>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -148,7 +149,7 @@ public class IMRequest {
         return mImService.dismissGroup(id)
                          .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<String>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -158,7 +159,7 @@ public class IMRequest {
         return mImService.dismissGroup(id)
                          .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<String>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -166,9 +167,9 @@ public class IMRequest {
      */
     public Observable<List<Contact>> searchFriendList(String key) {
         return mImService.searchFriendList(key)
-//                .observeOn(AndroidSchedulers.mainThread())
+                         .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<Contact>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -176,9 +177,9 @@ public class IMRequest {
      */
     public Observable<List<String>> removeContact(String userID) {
         return mImService.removeContact(userID)
-//                .observeOn(AndroidSchedulers.mainThread())
+                         .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<String>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -186,9 +187,9 @@ public class IMRequest {
      */
     public Observable<List<String>> addContact(String userID) {
         return mImService.addContact(userID)
-//                .observeOn(AndroidSchedulers.mainThread())
+                         .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<String>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -196,9 +197,9 @@ public class IMRequest {
      */
     public Observable<List<String>> acceptRequest(String otherUserID) {
         return mImService.acceptRequest(otherUserID)
-//                .observeOn(AndroidSchedulers.mainThread())
+                         .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<String>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
     /**
@@ -206,9 +207,9 @@ public class IMRequest {
      */
     public Observable<List<String>> refuseRequest(String otherUserID) {
         return mImService.refuseRequest(otherUserID)
-//                .observeOn(AndroidSchedulers.mainThread())
+                         .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseListResponseMapper<String>());
+                         .flatMap(new BaseResponseMapper<>());
     }
 
 }

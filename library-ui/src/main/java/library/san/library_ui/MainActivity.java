@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.Button;
 
 import com.alibaba.android.arouter.launcher.ARouter;
-import com.lib_im.core.config.ChatCode;
 import com.lib_im.pro.im.listener.IMConnectListener;
 import com.lib_im.pro.im.manager.connect.ConnectionManager;
 

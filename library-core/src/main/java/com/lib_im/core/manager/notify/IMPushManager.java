@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.lib_im.pro.R;
@@ -18,7 +17,7 @@ import java.util.Map;
  * 创建业务通知管理器
  */
 
-public class IMPushManager implements PushManager {
+public class IMPushManager {
 
     private String TAG = "IMPushManager";
     private Context mContext;
@@ -28,7 +27,6 @@ public class IMPushManager implements PushManager {
     private NotificationManager nm;
     private String mAppName;
     private int mIconId;
-    private String mAction;
 
     public IMPushManager(Context mContext) {
         this.mContext = mContext;
@@ -37,26 +35,22 @@ public class IMPushManager implements PushManager {
     /**
      * 是否开启震动提醒
      */
-    @Override
-    public void setVibrate(boolean _vibrate) {
-        mVibrate = _vibrate;
+    public void setVibrate(boolean vibrate) {
+        mVibrate = vibrate;
     }
 
     /**
      * 是否开启铃声提醒
      */
-    @Override
-    public void setBell(boolean _bell) {
-        mBell = _bell;
+    public void setBell(boolean bell) {
+        mBell = bell;
     }
 
     /**
      * 设置提醒数据
      */
-    @Override
     public void setNotifyLink(String appName, int iconId, String action, Class<?> pendingClass) {
         mAppName = appName;
-        mAction = action;
         mIconId = iconId;
         this.pendingClass = pendingClass;
     }
@@ -64,7 +58,6 @@ public class IMPushManager implements PushManager {
     /**
      * 播放个人聊天声音提醒,前提聊天页面未打开
      */
-    @Override
     public void playChatMessage(Map<String, String> map, String textContent) {
         Log.d(TAG, "playChatMessage--->");
         nm = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -76,7 +69,7 @@ public class IMPushManager implements PushManager {
         }
         PendingIntent sender = PendingIntent
                 .getActivity(mContext, 0, in, PendingIntent.FLAG_CANCEL_CURRENT);
-        android.support.v4.app.NotificationCompat.Builder builder = new NotificationCompat.Builder(
+        Notification.Builder builder = new Notification.Builder(
                 mContext)
                 .setAutoCancel(true)
                 .setTicker("您有新的消息")
@@ -102,7 +95,6 @@ public class IMPushManager implements PushManager {
     /**
      * @descript 取消通知栏
      */
-    @Override
     public void cancelNotation() {
         if (nm != null) {
             nm.cancel(1);

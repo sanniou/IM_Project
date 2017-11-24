@@ -11,7 +11,7 @@ import android.widget.ImageView;
 
 import com.lib_im.pro.R;
 import library.san.library_ui.entity.Contact;
-import com.lib_im.pro.im.listener.IMContactListener;
+import com.lib_im.core.manager.message.conversation.IMContactListener;
 import com.lib_im.pro.im.manager.contact.ContactManager;
 import library.san.library_ui.utils.LogUtils;
 import library.san.library_ui.utils.ToastUtils;

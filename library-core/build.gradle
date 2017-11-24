@@ -11,13 +11,6 @@ android {
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-        // ARout
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [moduleName: project.getName()]
-            }
-        }
-
     }
     buildTypes {
         release {
@@ -37,12 +30,7 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    //图片
-    compile 'com.zzti.fengyongge:imagepicker:1.2.0'
-    // 数据库
-    compile 'com.j256.ormlite:ormlite-android:5.0'
-    // json
-    compile 'com.google.code.gson:gson:2.8.2'
+
     // 网络框架
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
@@ -53,23 +41,4 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
     // 借助 chrome 网络和数据调试
     compile 'com.facebook.stetho:stetho-okhttp3:1.5.0'
-    // 路由
-    compile 'com.alibaba:arouter-api:1.2.4'
-    annotationProcessor 'com.alibaba:arouter-compiler:1.1.4'
-    // recyclerView 适配器
-    compile 'com.android.support:recyclerview-v7:26.1.0'
-    compile 'me.drakeet.multitype:multitype:3.3.0'
-
-    //图片加载
-    compile 'com.github.bumptech.glide:glide:4.2.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.2.0'
-
-    //v7
-    compile 'com.android.support:appcompat-v7:26.1.0'
-    //布局
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    //单元测试
-    testCompile 'junit:junit:4.12'
-
-
 }

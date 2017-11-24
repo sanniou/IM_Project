@@ -3,6 +3,7 @@ package com.lib_im.core;
 public class ChatClientConfig {
 
     public static final CharSequence XMPP_IDENTITY_NAME = "PHONE";
+
     private int mPingInterval;
     private int mConnectTimeOut;
     private boolean mDebugg;
@@ -12,13 +13,15 @@ public class ChatClientConfig {
     private CharSequence mClientName;
 
     public ChatClientConfig(int pingInterval, int connectTimeOut, boolean debugg,
-                            String serverHost, int serverPort, String serverName) {
+                            String serverHost, int serverPort, String serverName,
+                            CharSequence clientName) {
         mPingInterval = pingInterval;
         mConnectTimeOut = connectTimeOut;
         mDebugg = debugg;
         mServerHost = serverHost;
         mServerPort = serverPort;
         mServerName = serverName;
+        mClientName = clientName;
     }
 
     public String getServerHost() {

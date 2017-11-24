@@ -1,31 +1,33 @@
 package com.lib_im.core;
 
 import android.app.Application;
-import android.util.Log;
 
-import com.lib_im.core.config.ChatCode;
-import com.lib_im.core.config.XmppTool;
+import com.lib_im.core.api.IMRequest;
+import com.lib_im.core.entity.GroupContact;
 import com.lib_im.core.manager.connect.ConnectionManager;
-import com.lib_im.core.manager.contact.IMContactManger;
-import com.lib_im.core.manager.group.IMGroupContactManger;
 import com.lib_im.core.manager.message.IMChatMsgManager;
 import com.lib_im.core.manager.notify.IMNotifyManager;
 import com.lib_im.core.manager.notify.IMPushManager;
-import com.lib_im.pro.im.listener.OnLoginListener;
-import com.lib_im.pro.retrofit.exception.ApiErrorException;
+import com.lib_im.core.retrofit.exception.ApiErrorException;
+import com.lib_im.core.retrofit.exception.AppErrorException;
+import com.lib_im.core.retrofit.rx.SimpleObserver;
 
-import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.ReconnectionManager;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * 聊天客户端
@@ -33,37 +35,24 @@ import io.reactivex.annotations.NonNull;
 
 public class IMChatClient {
 
-    private AbstractXMPPConnection connection;
+    public static final String KEY_USER_ID = "key_user_id";
+
+    public static final String KEY_USER_NAME = "key_user_name";
+
+    public static final String KEY_USER_PASS = "key_user_pass";
+
+    private XMPPTCPConnection connection;
+
     private HashMap<String, String> configMap = new HashMap<>();
 
-    private ChatClientConfig mConfig;
-
     private static IMChatClient sChatClient;
-    /**
-     * 连接管理
-     */
+
     private ConnectionManager connectManager;
 
-    /**
-     * 联系人管理
-     */
-    private IMContactManger contactManger;
-
-    /**
-     * 聊天管理器、消息接收管理器
-     */
-    private IMChatMsgManager chatManager;
-
-    /**
-     * 群组通讯录管理器
-     */
-    private IMGroupContactManger groupContactManager;
+    private IMChatMsgManager mChatManager;
 
     private IMNotifyManager notifyManager;
 
-    /**
-     * 业务通知管理器
-     */
     private IMPushManager pushManager;
 
     private IMChatClient() {
@@ -84,109 +73,70 @@ public class IMChatClient {
     }
 
     public void init(@NonNull ChatClientConfig config, @NonNull Application context) {
-        mConfig = config;
         try {
             connection = XmppTool.setOpenFireConnectionConfig(config);
         } catch (XmppStringprepException e) {
             e.printStackTrace();
         }
+
         connectManager = new ConnectionManager();
-        chatManager = new IMChatMsgManager(context);
-        contactManger = new IMContactManger(context);
+        mChatManager = new IMChatMsgManager();
         notifyManager = new IMNotifyManager(context);
         pushManager = new IMPushManager(context);
-        groupContactManager = new IMGroupContactManger(context);
-        initChatAbout();
-    }
 
-    /**
-     * 初始化聊天模块相关
-     */
-
-    private void initChatAbout() {
         connection.addConnectionListener(connectManager);
-        // 重连机制
-        ReconnectionManager.setDefaultFixedDelay(5);
-        ReconnectionManager.setEnabledPerDefault(true);
-        chatManager.initIm();
-        contactManger.initIm();
-        notifyManager.initIm();
-        groupContactManager.initIm();
+
+        mChatManager.initIm(connection);
     }
 
-    public void destroy() {
+    public void release() {
         connection.removeConnectionListener(connectManager);
     }
 
-    public void login(String userName, String passWord, OnLoginListener onLoginListener) {
-        setConfig(ChatCode.KEY_USER_ID, userName);
-        setConfig(ChatCode.KEY_USER_NAME, userName);
-        setConfig(ChatCode.KEY_USER_PASS, passWord);
-        initManager();
-        loginXmpp(userName, passWord, onLoginListener);
+    public Observable<Object> login(String userName, String passWord) {
+        return Observable.create(e -> {
+            if (isLogin()) {
+                throw new AppErrorException("用户已经登陆");
+            }
+            setConfig(KEY_USER_ID, userName);
+            setConfig(KEY_USER_NAME, userName);
+            setConfig(KEY_USER_PASS, passWord);
+            loginXmpp(userName, passWord, e);
+            mChatManager.readOfflineMessage();
+            //设置为"可聊天"以区分状态
+            setOnLine();
+            e.onComplete();
+        }).subscribeOn(Schedulers.io())
+                         .observeOn(AndroidSchedulers.mainThread());
+
     }
 
     /**
      * 登录
      *
-     * @param userName        用户名
-     * @param passWord        密码
-     * @param onLoginListener 登录回调接口
+     * @param userName 用户名
+     * @param passWord 密码
+     * @param emitter  登录回调接口
      */
 
-    private void loginXmpp(String userName, String passWord, OnLoginListener onLoginListener) {
-        if (connection != null) {
-            try {
-                // 首先判断是否还连接着服务器，需要先断开
-                if (connection.isConnected()) {
-                    try {
-                        connection.disconnect();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                connection.connect();
-                if (!connection.isConnected()) {
-                    Log.d("s", "SMACK connect failed without exception!");
-                }
-                if (!connection.isAuthenticated()) {
-                    connection.login(userName, passWord);
-                }
-                if (onLoginListener != null) {
-                    //添加connectionLisenter监听
-                    setOnLine();
-                    onLoginListener.OnLoginSuccess();
-                }
-            } catch (XMPPException e) {
-                e.printStackTrace();
-                if (onLoginListener != null) {
-                    onLoginListener.OnLoginFailed(e.getMessage());
-                }
-            } catch (SmackException e) {
-                e.printStackTrace();
-                if (onLoginListener != null) {
-                    onLoginListener.OnLoginFailed(e.getMessage());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                if (onLoginListener != null) {
-                    onLoginListener.OnLoginFailed(e.getMessage());
-                }
-            }
-        } else {
-            if (onLoginListener != null) {
-                onLoginListener.OnLoginFailed(ChatCode.CHAT_UN_CONNECT);
-            }
+    private void loginXmpp(String userName, String passWord, ObservableEmitter<Object> emitter)
+            throws InterruptedException, XMPPException, SmackException, IOException {
+        // 首先判断是否还连接着服务器，需要先断开
+        if (connection.isConnected()) {
+            connection.disconnect();
         }
-    }
+        connection.connect();
+        if (!connection.isConnected()) {
+            throw new ApiErrorException("SMACK connect failed without exception!");
+        }
+        if (connection.isAuthenticated()) {
+            throw new ApiErrorException("Authenticated before login!");
+        }
+        connection.login(userName, passWord);
+        if (emitter != null) {
+            emitter.onComplete();
+        }
 
-    /**
-     * 服务器如果是连接状态，则可执行自动登录，不再执行login操作
-     */
-
-    public void autoLogin() {
-        connectManager.initIm();
-        initManager();
     }
 
     /**
@@ -194,84 +144,34 @@ public class IMChatClient {
      */
 
     public void logout() {
-        try {
-            configMap.clear();
-            connectManager.removeXmppConnectListener();
-            chatManager.removeChatAboutListener();
-            connection.disconnect(new Presence(Presence.Type.unavailable));
-            connection = null;
-            notifyManager.cancelNotation();
-        } catch (SmackException.NotConnectedException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
+        if (!isLogin()) {
+            return;
         }
-        getChatManger().removeRoomChatMap();
-    }
-
-    public boolean isLogin() {
-        boolean isLoginIn = false;
-        if (connection != null) {
-            boolean isConnect = connection.isConnected();
-            isLoginIn = isConnect && connection.isAuthenticated();
-        }
-        return isLoginIn;
-    }
-
-    public void setConfig(String key, String value) {
-        configMap.put(key, value);
-    }
-
-    public String getConfig(String key) {
-        return configMap.get(key);
-    }
-
-    public ChatMsgManager getChatManger() {
-        return chatManager;
-    }
-
-    public ConnectionManager getConnectManager() {
-        return connectManager;
-    }
-
-    public SessionManager getSessionManager() {
-        return sessionManager;
-    }
-
-    public GroupContactManager getGroupContactManager() {
-        return groupContactManager;
-    }
-
-    public NotifyManager getNotifyManager() {
-        return notifyManager;
-    }
-
-    public ContactManager getContactManager() {
-        return contactManger;
-    }
-
-    public PushManager getPushManager() {
-        return pushManager;
+        configMap.clear();
+        notifyManager.cancelNotation();
+        mChatManager.destroy();
+        connectManager.destroy();
+        connection.disconnect();
     }
 
     /**
      * 加入聊天室，加入群组
      */
 
-    public void joinGroupRoom(final String userId, final String nickName) {
+    public void joinGroupRoom(String userId, final String nickName) {
         //获取聊天室信息,将userName作为加入房间后自己的昵称
-        IMRequest.getInstance().queryGroupContact()
-                 .subscribe(new SimpleListObserver<GroupContact>() {
+        IMRequest.getInstance()
+                 .queryGroupContact()
+                 .subscribe(new SimpleObserver<List<GroupContact>>() {
 
+                     @Override
                      public void onNext(@NonNull List<GroupContact> groupContacts) {
-                         if (groupContacts != null) {
-                             for (GroupContact groupContact : groupContacts) {
-                                 groupContact.setAccount(userId);
-                                 chatManager.initMultiRoom(groupContact.getGroupJid(), nickName);
-                             }
+                         for (GroupContact groupContact : groupContacts) {
+                             mChatManager.getGroupConversation(groupContact.getGroupJid(), nickName);
                          }
                      }
 
+                     @Override
                      public void onError(@NonNull Throwable e) {
                          e.printStackTrace();
                      }
@@ -280,41 +180,42 @@ public class IMChatClient {
     }
 
     /**
-     * 初始化管理器
-     */
-
-    public void initManager() {
-        String user = getConfig(ChatCode.KEY_USER_NAME);
-        notifyManager.init();
-        chatManager.init();
-        contactManger.init();
-        groupContactManager.init();
-        sessionManager.init();
-
-        chatManager.setCurrentUser();
-        sessionManager.setCurrentUser(user);
-        groupContactManager.setCurrentUser(user);
-        contactManger.setCurrentUser(user);
-    }
-
-    /**
      * 设置在线
      */
 
-    public void setOnLine() throws SmackException.NotConnectedException {
+    public void setOnLine() throws SmackException.NotConnectedException, InterruptedException {
         Presence presence = new Presence(Presence.Type.available);
         //设置为"可聊天"以区分状态
         presence.setMode(Presence.Mode.chat);
-        XmppTool.getInstance().getConnection().sendStanza(presence);
+        connection.sendStanza(presence);
     }
 
-    /**
-     * 设置openfire参数
-     */
-
-    public void setOpenfireServer(String host, int port, String serverName) {
-        ChatCode.XMPP_SERVER = host;
-        ChatCode.XMPP_PORT = port;
-        ChatCode.XMPP_SERVER_NAME = serverName;
+    public boolean isLogin() {
+        return connection != null && connection.isConnected() && connection.isAuthenticated();
     }
+
+    private void setConfig(String key, String value) {
+        configMap.put(key, value);
+    }
+
+    public String getConfig(String key) {
+        return configMap.get(key);
+    }
+
+    public ConnectionManager getConnectManager() {
+        return connectManager;
+    }
+
+    public IMNotifyManager getNotifyManager() {
+        return notifyManager;
+    }
+
+    public IMPushManager getPushManager() {
+        return pushManager;
+    }
+
+    public IMChatMsgManager getChatManager() {
+        return mChatManager;
+    }
+
 }
