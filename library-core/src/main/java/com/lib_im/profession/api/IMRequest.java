@@ -1,14 +1,13 @@
-package com.lib_im.core.api;
+package com.lib_im.profession.api;
 
-import com.lib_im.core.retrofit.base.BaseResponseMapper;
 import com.lib_im.core.entity.ChatRecord;
-import com.lib_im.core.entity.Contact;
 import com.lib_im.core.entity.GroupChatRecord;
-import com.lib_im.core.entity.GroupContact;
-import com.lib_im.core.entity.GroupDetails;
-import com.lib_im.core.entity.GroupMember;
-import com.lib_im.core.entity.UserInfo;
+import com.lib_im.core.retrofit.base.BaseResponseMapper;
 import com.lib_im.core.retrofit.config.IMRetrofit;
+import com.lib_im.profession.entity.Contact;
+import com.lib_im.profession.entity.GroupContact;
+import com.lib_im.profession.entity.GroupDetails;
+import com.lib_im.profession.entity.GroupMember;
 
 import java.util.List;
 
@@ -40,20 +39,10 @@ public class IMRequest {
     }
 
     /**
-     * 登录接口
-     */
-    public Observable<List<UserInfo>> login(String userName, String password) {
-        return mImService.login(userName, password)
-                         .observeOn(AndroidSchedulers.mainThread())
-                         .subscribeOn(Schedulers.io())
-                         .flatMap(new BaseResponseMapper<>());
-    }
-
-    /**
      * 获取群组接口
      */
     public Observable<List<GroupContact>> queryGroupContact() {
-        return mImService.queryGroupList("1")
+        return mImService.queryGroupList(null)
                          .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
                          .flatMap(new BaseResponseMapper<>());
@@ -145,8 +134,8 @@ public class IMRequest {
     /**
      * 解散群组
      */
-    public Observable<List<String>> dismissGroup(String id) {
-        return mImService.dismissGroup(id)
+    public Observable<List<String>> dissolveGroup(String id) {
+        return mImService.dissolveGroup(id)
                          .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
                          .flatMap(new BaseResponseMapper<>());
@@ -156,7 +145,7 @@ public class IMRequest {
      * 退出群组
      */
     public Observable<List<String>> exitGroup(String id) {
-        return mImService.dismissGroup(id)
+        return mImService.dissolveGroup(id)
                          .observeOn(AndroidSchedulers.mainThread())
                          .subscribeOn(Schedulers.io())
                          .flatMap(new BaseResponseMapper<>());

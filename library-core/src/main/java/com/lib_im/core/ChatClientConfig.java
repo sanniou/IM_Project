@@ -2,8 +2,6 @@ package com.lib_im.core;
 
 public class ChatClientConfig {
 
-    public static final CharSequence XMPP_IDENTITY_NAME = "PHONE";
-
     private int mPingInterval;
     private int mConnectTimeOut;
     private boolean mDebugg;

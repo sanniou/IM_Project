@@ -1,4 +1,4 @@
-package com.lib_im.core.entity;
+package com.lib_im.profession.entity;
 
 /**
  * Created by songgx on 16/6/15.

@@ -2,12 +2,10 @@ package com.lib_im.core.manager.message;
 
 import android.util.Log;
 
-import com.lib_im.core.api.IMRequest;
-import com.lib_im.core.entity.ChatMessage;
-import com.lib_im.core.entity.GroupChatRecord;
-import com.lib_im.core.manager.message.conversation.IMGroupConversation;
-import com.lib_im.core.manager.message.conversation.IMUserConversation;
-import com.lib_im.core.retrofit.rx.SimpleObserver;
+import com.lib_im.core.exception.ApiErrorException;
+import com.lib_im.core.rx.SimpleObserver;
+import com.lib_im.profession.message.IMGroupConversation;
+import com.lib_im.profession.message.IMUserConversation;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.SmackException;
@@ -26,8 +24,6 @@ import org.jivesoftware.smackx.muc.UserStatusListener;
 import org.jivesoftware.smackx.offline.OfflineMessageHeader;
 import org.jivesoftware.smackx.offline.OfflineMessageManager;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.EntityFullJid;
 import org.jxmpp.jid.Jid;
@@ -40,7 +36,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.reactivex.annotations.NonNull;
+import io.reactivex.Observable;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * 聊天管理器
@@ -75,26 +74,14 @@ public class IMChatMsgManager {
         //提供一种机制来侦听通过指定过滤器的数据包。这允许事件风格的编程 - 每次找到新的节（/数据包）时，
         // 将调用{@link #processStanza（Stanza）}方法。这是一个由连接器提供的功能的另一种方法，它可以让你在等待结果时阻塞。
         connection.addSyncStanzaListener(packet -> {
-            Log.e(TAG, "headLine" + packet.toString());
+            Log.e(TAG, "Stanza" + packet.toString());
             if (packet instanceof Message) {
                 Message message = (Message) packet;
                 final Message.Type type = message.getType();
-                if (type.toString().equals("headline")) {
+                Log.e(TAG, "Message" + message.toString());
+                if (Message.Type.headline.equals(type)) {
                     String content = message.getBody();
                     // TODO 推送模块逻辑，根据具体业务逻辑而定
-//                try {
-//                    JSONObject jsonObject=new JSONObject(content);
-//                    JSONObject jsonObject1=jsonObject.getJSONObject("rows");
-//                    String contentID=jsonObject1.getString("contentID");
-//                    String pushContent=jsonObject1.getString("pushContent");
-//                    String ID=jsonObject1.getString("ID");
-//                    String pushType=jsonObject1.getString("pushType");
-//                    initNotify(NotifyActivity.class);
-//                    LiteChat.chatClient.getPushManager().playChatMessage(contentID,pushContent,ID,pushType);
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-
                 }
             }
         }, stanzaFilter);
@@ -110,12 +97,13 @@ public class IMChatMsgManager {
      * 获取离线消息
      */
     public void readOfflineMessage() {
-        Log.e(TAG, "获取离线消息 ");
-        OfflineMessageManager offlineManager = new OfflineMessageManager(connection);
-        try {
+        Observable.create((ObservableOnSubscribe<String>) e -> {
+            Log.e(TAG, "获取离线消息 ");
+            OfflineMessageManager offlineManager = new OfflineMessageManager(connection);
             int count = offlineManager.getMessageCount();
             Log.e(TAG, "收到离线消息 " + count);
             if (count == 0) {
+                e.onComplete();
                 return;
             }
             List<OfflineMessageHeader> headers = offlineManager.getHeaders();
@@ -126,28 +114,37 @@ public class IMChatMsgManager {
                         message.getBody());
                 Message.Type type = message.getType();
                 if (Message.Type.chat == type || Message.Type.groupchat == type) {
-                    //如果是空消息则不接收
-                    String messageBody = message.getBody();
-                    ChatMessage chatMessage = new ChatMessage();
                     //解析接收到的消息体
-                    JSONObject jsonObject = new JSONObject(messageBody);
-                    parseMessage(chatMessage, jsonObject);
-                    notifyMessageListener(chatMessage);
+                    String messageBody = message.getBody();
+                    e.onNext(messageBody);
                 }
             }
+            e.onComplete();
             offlineManager.deleteMessages();
-        } catch (SmackException.NotConnectedException | XMPPException | InterruptedException | JSONException | SmackException.NoResponseException e) {
-            e.printStackTrace();
-        }
+        }).subscribeOn(Schedulers.io())
+                  .observeOn(AndroidSchedulers.mainThread())
+                  .subscribe(new SimpleObserver<String>() {
+                      @Override
+                      public void onNext(String s) {
+                          notifyMessageListener(s);
+                      }
+
+                      @Override
+                      public void onError(Throwable e) {
+
+                      }
+                  });
     }
 
+    /**
+     * 获取一个用户单聊会话控制器
+     */
     public IMUserConversation getUserConversation(String userId) {
         try {
             if (chatMap.containsKey(userId)) {
                 return chatMap.get(userId);
             }
-            IMUserConversation conversation = null;
-            conversation = new IMUserConversation(getChat(userId));
+            IMUserConversation conversation = new IMUserConversation(getChat(userId));
             chatMap.put(userId, conversation);
             return conversation;
         } catch (XmppStringprepException e) {
@@ -156,19 +153,36 @@ public class IMChatMsgManager {
         return null;
     }
 
-    public IMGroupConversation getGroupConversation(String groupId, String nickName) {
+    /**
+     * 获取一个用户群聊会话控制器，加入群组是一个耗时操作，所以异步实现
+     */
+    public Observable<IMGroupConversation> getGroupConversation(String groupId, String nickName) {
+        return Observable.create((ObservableOnSubscribe<IMGroupConversation>) e -> {
+            e.onNext(findGroupConversation(groupId, nickName));
+            e.onComplete();
+        })
+                         .subscribeOn(Schedulers.io())
+                         .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    /**
+     * 获取一个用户群聊会话控制器的同步操作
+     */
+    public IMGroupConversation findGroupConversation(String groupId, String nickName)
+            throws ApiErrorException {
         try {
-            if (roomMap.containsKey(groupId)) {
-                return roomMap.get(groupId);
+            if (!roomMap.containsKey(groupId)) {
+                IMGroupConversation conversation = new IMGroupConversation(
+                        getMultiRoom(groupId, nickName));
+                roomMap.put(groupId, conversation);
             }
-            IMGroupConversation conversation = new IMGroupConversation(
-                    getMultiRoom(groupId, nickName));
-            roomMap.put(groupId, conversation);
-            return conversation;
-        } catch (XMPPException.XMPPErrorException | XmppStringprepException | SmackException.NoResponseException | MultiUserChatException.NotAMucServiceException | SmackException.NotConnectedException | InterruptedException e) {
+            return roomMap.get(groupId);
+        } catch (XMPPException.XMPPErrorException | XmppStringprepException | SmackException.NoResponseException | MultiUserChatException.NotAMucServiceException | SmackException.NotConnectedException |
+                InterruptedException e) {
             e.printStackTrace();
+            // 抛出自定义的异常
+            throw new ApiErrorException("连接群组失败");
         }
-        return null;
     }
 
     private Chat getChat(String toId) throws XmppStringprepException {
@@ -189,7 +203,7 @@ public class IMChatMsgManager {
      * 注销消息监听接口
      */
     public void removeMessageListener(IMMessageListener call) {
-        if (mIMMessageListeners.indexOf(call) != -1) {
+        if (mIMMessageListeners.contains(call)) {
             mIMMessageListeners.remove(call);
         }
     }
@@ -245,69 +259,26 @@ public class IMChatMsgManager {
      * 收到群聊消息的处理
      */
     private void processMessage(Message message) {
-        final String strFrom = message.getFrom().toString();
         Log.e(TAG, "processMessage 接收消息...." + message.getBody());
-        String roomId = strFrom.split("@")[0];
-        //**解析接收到的消息json
-        try {
-            JSONObject jsonObject = new JSONObject(message.getBody());
-            ChatMessage chatMessage = new ChatMessage();
-            parseMessage(chatMessage, jsonObject);
-            packRoomMessageEntity(chatMessage, roomId, null, null);
-            notifyGrouopMessageListener(chatMessage);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        AndroidSchedulers.mainThread().createWorker().schedule(() -> {
+            notifyGroupMessageListener(message.getBody());
+        });
     }
 
     /**
-     * 获取群组未读的记录的数量，用于获取最新的一条消息和未读数量更新界面的消息数量
-     *
-     * @param string 获取未读记录数参数，形式为json串
-     */
-    public void getRoomUnReadMessageCount(String string) {
-        IMRequest.getInstance()
-                 .queryGroupRecordCount(string)
-                 .subscribe(new SimpleObserver<List<GroupChatRecord>>() {
-                     @Override
-                     public void onNext(@NonNull List<GroupChatRecord> groupChatRecords) {
-
-                     }
-
-                     @Override
-                     public void onError(@NonNull Throwable e) {
-                         e.printStackTrace();
-                     }
-                 });
-
-    }
-
-    /**
-     * 当应用断开连接或者是，注销登录时移除掉群聊天对象map
+     * 当应用断开连接或者时，注销登录时移除掉群聊天对象map
      */
     public void destroy() {
         roomMap.clear();
         chatMap.clear();
         mIMMessageListeners.clear();
-//        mDeliveryReceiptManager.removeReceiptReceivedListener();
-    }
-
-    /**
-     * 打包群消息实体
-     */
-    private void packRoomMessageEntity(final ChatMessage chatMessage, String roomId, String selfId,
-                                       String selfName) {
-        chatMessage.setMT(Boolean.TRUE);
-        chatMessage.setRoom(Boolean.TRUE);
-        chatMessage.setRoomId(roomId);
-        chatMessage.setSelfName(selfName);
-        chatMessage.setSelfId(selfId);
+        //mDeliveryReceiptManager.removeReceiptReceivedListener();
     }
 
     /**
      * 回调消息监听接口
      */
-    private void notifyMessageListener(ChatMessage msg) {
+    private void notifyMessageListener(String msg) {
         for (IMMessageListener call : mIMMessageListeners) {
             call.onReceiveMessage(msg);
         }
@@ -316,7 +287,7 @@ public class IMChatMsgManager {
     /**
      * 回调消息监听接口
      */
-    private void notifyGrouopMessageListener(ChatMessage msg) {
+    private void notifyGroupMessageListener(String msg) {
         for (IMMessageListener call : mIMMessageListeners) {
             call.onReceiveGroupMessage(msg);
         }
@@ -329,50 +300,16 @@ public class IMChatMsgManager {
                                               Stanza receipt) {
         Log.e(TAG, "接收回执" + receipt.toString());
         for (IMMessageListener call : mIMMessageListeners) {
-            call.onReceiveReceipt(null);
+            call.onReceiveReceipt(receiptId);
         }
     }
 
     /**
-     * 接收消息只包含文本消息(openfire接收消息接口回调方法, 单人聊天接收消息方法)
+     * openfire 接收消息回调方法,单聊消息监听
      */
     private void receiveMessage(EntityBareJid from, Message message, Chat chat) {
-        Log.e(TAG, "接收消息...." + from.toString() + ":" + message.getBody());
-        ChatMessage chatMessage = new ChatMessage();
-        //解析接收到的消息体
-        try {
-            JSONObject jsonObject = new JSONObject(message.getBody());
-            parseMessage(chatMessage, jsonObject);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        notifyMessageListener(chatMessage);
-    }
-
-    /**
-     * 解析收到的新消息
-     */
-    private void parseMessage(ChatMessage chatMessage, JSONObject jsonObject) throws JSONException {
-        String sendUserId = jsonObject.getString("sendUserId");
-        chatMessage.setFromId(sendUserId);
-        String sendUserName = jsonObject.getString("sendUserName");
-        chatMessage.setFromName(sendUserName);
-        String sendUserIcon = jsonObject.getString("headIcon");
-        chatMessage.setHeadIcon(sendUserIcon);
-        String msgId = jsonObject.getString("msgId");
-        chatMessage.setMsgId(msgId);
-        String content = jsonObject.getString("content");
-        chatMessage.setMsg(content);
-        int msgType = jsonObject.getInt("msgType");
-        chatMessage.setMsg_type(msgType);
-        String imageFileName = jsonObject.getString("fileName");
-        chatMessage.setFileName(imageFileName);
-        String imageLocalPath = jsonObject.getString("localPath");
-        chatMessage.setFile_path(imageLocalPath);
-        String imageRemoteUrl = jsonObject.getString("remoteUrl");
-        chatMessage.setRemoteUrl(imageRemoteUrl);
-        float voiceLength = (float) jsonObject.getDouble("fileLength");
-        chatMessage.setFileLength(voiceLength);
+        AndroidSchedulers.mainThread().createWorker()
+                         .schedule(() -> notifyMessageListener(message.getBody()));
     }
 
     /************************* 群组管理员状态更新 IMParticipantStatusListener *************************/

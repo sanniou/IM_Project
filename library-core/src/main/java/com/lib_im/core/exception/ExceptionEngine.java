@@ -1,4 +1,4 @@
-package com.lib_im.core.retrofit.exception;
+package com.lib_im.core.exception;
 
 import com.google.gson.JsonParseException;
 

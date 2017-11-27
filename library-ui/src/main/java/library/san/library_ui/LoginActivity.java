@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.lib_im.core.retrofit.rx.SimpleObserver;
+import com.lib_im.core.rx.SimpleObserver;
 
 import java.util.List;
 

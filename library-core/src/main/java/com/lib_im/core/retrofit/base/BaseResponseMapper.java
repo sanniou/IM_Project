@@ -1,6 +1,6 @@
 package com.lib_im.core.retrofit.base;
 
-import com.lib_im.core.retrofit.exception.ApiErrorException;
+import com.lib_im.core.exception.ApiErrorException;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;

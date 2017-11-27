@@ -8,8 +8,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.lib_im.core.IMChatClient;
-import com.lib_im.core.retrofit.rx.SimpleCompleteObserver;
+import com.lib_im.core.rx.SimpleCompleteObserver;
+import com.lib_im.profession.IMChatClient;
 
 public class LoginActivity extends Activity implements View.OnClickListener {
 

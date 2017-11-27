@@ -1,4 +1,4 @@
-package com.lib_im.core.entity;
+package com.lib_im.profession.entity;
 
 import java.util.List;
 

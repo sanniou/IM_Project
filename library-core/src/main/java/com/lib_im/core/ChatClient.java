@@ -2,17 +2,12 @@ package com.lib_im.core;
 
 import android.app.Application;
 
-import com.lib_im.core.api.IMRequest;
-import com.lib_im.core.entity.GroupContact;
+import com.lib_im.core.exception.ApiErrorException;
+import com.lib_im.core.exception.AppErrorException;
 import com.lib_im.core.manager.connect.ConnectionManager;
 import com.lib_im.core.manager.message.IMChatMsgManager;
-import com.lib_im.core.manager.notify.IMNotifyManager;
-import com.lib_im.core.manager.notify.IMPushManager;
-import com.lib_im.core.retrofit.exception.ApiErrorException;
-import com.lib_im.core.retrofit.exception.AppErrorException;
-import com.lib_im.core.retrofit.rx.SimpleObserver;
+import com.lib_im.profession.message.IMGroupConversation;
 
-import org.jivesoftware.smack.ReconnectionManager;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Presence;
@@ -20,11 +15,12 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.schedulers.Schedulers;
@@ -33,7 +29,7 @@ import io.reactivex.schedulers.Schedulers;
  * 聊天客户端
  */
 
-public class IMChatClient {
+public abstract class ChatClient {
 
     public static final String KEY_USER_ID = "key_user_id";
 
@@ -45,32 +41,13 @@ public class IMChatClient {
 
     private HashMap<String, String> configMap = new HashMap<>();
 
-    private static IMChatClient sChatClient;
+
 
     private ConnectionManager connectManager;
 
     private IMChatMsgManager mChatManager;
 
-    private IMNotifyManager notifyManager;
 
-    private IMPushManager pushManager;
-
-    private IMChatClient() {
-        if (sChatClient != null) {
-            throw new ApiErrorException("不能被初始化");
-        }
-    }
-
-    public static IMChatClient getInstance() {
-        if (sChatClient == null) {
-            synchronized (IMChatClient.class) {
-                if (sChatClient == null) {
-                    sChatClient = new IMChatClient();
-                }
-            }
-        }
-        return sChatClient;
-    }
 
     public void init(@NonNull ChatClientConfig config, @NonNull Application context) {
         try {
@@ -81,8 +58,6 @@ public class IMChatClient {
 
         connectManager = new ConnectionManager();
         mChatManager = new IMChatMsgManager();
-        notifyManager = new IMNotifyManager(context);
-        pushManager = new IMPushManager(context);
 
         connection.addConnectionListener(connectManager);
 
@@ -108,7 +83,6 @@ public class IMChatClient {
             e.onComplete();
         }).subscribeOn(Schedulers.io())
                          .observeOn(AndroidSchedulers.mainThread());
-
     }
 
     /**
@@ -120,7 +94,7 @@ public class IMChatClient {
      */
 
     private void loginXmpp(String userName, String passWord, ObservableEmitter<Object> emitter)
-            throws InterruptedException, XMPPException, SmackException, IOException {
+            throws InterruptedException, XMPPException, SmackException, IOException, ApiErrorException {
         // 首先判断是否还连接着服务器，需要先断开
         if (connection.isConnected()) {
             connection.disconnect();
@@ -148,7 +122,6 @@ public class IMChatClient {
             return;
         }
         configMap.clear();
-        notifyManager.cancelNotation();
         mChatManager.destroy();
         connectManager.destroy();
         connection.disconnect();
@@ -158,25 +131,16 @@ public class IMChatClient {
      * 加入聊天室，加入群组
      */
 
-    public void joinGroupRoom(String userId, final String nickName) {
+    public Observable<IMGroupConversation> joinGroupRoom(Collection<String> groupIds,
+                                                         String nickName) {
         //获取聊天室信息,将userName作为加入房间后自己的昵称
-        IMRequest.getInstance()
-                 .queryGroupContact()
-                 .subscribe(new SimpleObserver<List<GroupContact>>() {
-
-                     @Override
-                     public void onNext(@NonNull List<GroupContact> groupContacts) {
-                         for (GroupContact groupContact : groupContacts) {
-                             mChatManager
-                                     .getGroupConversation(groupContact.getGroupJid(), nickName);
-                         }
-                     }
-
-                     @Override
-                     public void onError(@NonNull Throwable e) {
-                         e.printStackTrace();
-                     }
-                 });
+        return Observable.create((ObservableOnSubscribe<IMGroupConversation>) e -> {
+            for (String groupJid : groupIds) {
+                e.onNext(mChatManager.findGroupConversation(groupJid, nickName));
+            }
+            e.onComplete();
+        }).subscribeOn(Schedulers.io())
+                         .observeOn(AndroidSchedulers.mainThread());
 
     }
 
@@ -185,10 +149,10 @@ public class IMChatClient {
      */
 
     public void setOnLine() throws SmackException.NotConnectedException, InterruptedException {
-        Presence presence = new Presence(Presence.Type.available);
         //设置为"可聊天"以区分状态
+        Presence presence = new Presence(Presence.Type.available);
         presence.setMode(Presence.Mode.chat);
-        presence.setStatus("状态可不就是签名");
+        presence.setStatus("状态");
         connection.sendStanza(presence);
     }
 
@@ -206,14 +170,6 @@ public class IMChatClient {
 
     public ConnectionManager getConnectManager() {
         return connectManager;
-    }
-
-    public IMNotifyManager getNotifyManager() {
-        return notifyManager;
-    }
-
-    public IMPushManager getPushManager() {
-        return pushManager;
     }
 
     public IMChatMsgManager getChatManager() {

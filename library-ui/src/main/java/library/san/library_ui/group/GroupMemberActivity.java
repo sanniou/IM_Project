@@ -12,9 +12,7 @@ import android.widget.TextView;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.lib_im.pro.R;
 import library.san.library_ui.entity.GroupMember;
-import com.lib_im.core.manager.message.conversation.IMContactListener;
-import com.lib_im.core.manager.message.conversation.IMGroupListener;
-import com.lib_im.core.manager.message.conversation.OnLoadListener;
+
 import com.lib_im.pro.im.manager.group.GroupContactManager;
 import library.san.library_ui.utils.DividerDrawable;
 import library.san.library_ui.utils.ToastUtils;

@@ -1,7 +1,6 @@
 package com.lib_im.core.entity;
 
 /**
- * Created by songgx on 2016/8/17.
  * 群聊历史记录
  */
 public class GroupChatRecord {

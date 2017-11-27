@@ -1,4 +1,4 @@
-package com.lib_im.core.retrofit.rx;
+package com.lib_im.core.rx;
 
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;

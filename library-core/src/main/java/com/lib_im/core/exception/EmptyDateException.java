@@ -1,4 +1,4 @@
-package com.lib_im.core.retrofit.exception;
+package com.lib_im.core.exception;
 
 /**
  * 接口请求 code 为 0，返回 [] 或者 [null] 时 的异常

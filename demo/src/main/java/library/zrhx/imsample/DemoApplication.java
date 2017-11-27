@@ -4,8 +4,8 @@ import android.app.Application;
 import android.util.Log;
 
 import com.lib_im.core.ChatClientConfig;
-import com.lib_im.core.IMChatClient;
 import com.lib_im.core.manager.connect.ConnectListener;
+import com.lib_im.profession.IMChatClient;
 
 public class DemoApplication extends Application {
 
@@ -16,8 +16,9 @@ public class DemoApplication extends Application {
     public void onCreate() {
         ChatClientConfig clientConfig = new ChatClientConfig(60, 15_000, true, openfire2,
                 5222, "127.0.0.1", "test");
-        IMChatClient.getInstance().init(clientConfig, this);
-        IMChatClient.getInstance().getConnectManager().addConnectListener(new ConnectListener() {
+        IMChatClient chatClient = IMChatClient.getInstance();
+        chatClient.init(clientConfig, this);
+        chatClient.getConnectManager().addConnectListener(new ConnectListener() {
             @Override
             public void onConnect() {
                 Log.e("app", "onConnect");
