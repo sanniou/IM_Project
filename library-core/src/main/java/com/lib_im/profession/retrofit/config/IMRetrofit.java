@@ -1,13 +1,10 @@
-package com.lib_im.core.retrofit.config;
-
-import com.facebook.stetho.okhttp3.StethoInterceptor;
+package com.lib_im.profession.retrofit.config;
 
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * 网络请求工具类
@@ -15,11 +12,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class IMRetrofit {
 
-    public static final int TIMEOUT = 10_000;
-    public static final String BASE_URL = "http://192.168.253.7:8089/api/";
-    public Retrofit retrofit;
-    public OkHttpClient okHttpClient;
-    public static IMRetrofit sCommonRetrofit;
+    private static final int TIMEOUT = 10_000;
+    private static final String BASE_URL = "http://222.132.114.42:8888/mls-anShun/api/";
+    private Retrofit retrofit;
+    private OkHttpClient okHttpClient;
+    private static IMRetrofit sCommonRetrofit;
 
     private IMRetrofit() {
         okHttpClient = new OkHttpClient
@@ -27,14 +24,12 @@ public class IMRetrofit {
                 .connectTimeout(TIMEOUT, TimeUnit.SECONDS)
                 .readTimeout(TIMEOUT, TimeUnit.SECONDS)
                 .writeTimeout(TIMEOUT, TimeUnit.SECONDS)
-                .addNetworkInterceptor(new StethoInterceptor())
                 .addInterceptor(new LoggingInterceptor())
                 .build();
 
         retrofit = new Retrofit
                 .Builder()
                 .client(okHttpClient)
-                .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .baseUrl(BASE_URL)
                 .build();

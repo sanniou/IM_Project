@@ -1,7 +1,5 @@
 package com.lib_im.core;
 
-import android.app.Application;
-
 import com.lib_im.core.exception.ApiErrorException;
 import com.lib_im.core.exception.AppErrorException;
 import com.lib_im.core.manager.connect.ConnectionManager;
@@ -41,31 +39,20 @@ public abstract class ChatClient {
 
     private HashMap<String, String> configMap = new HashMap<>();
 
-
-
     private ConnectionManager connectManager;
 
     private IMChatMsgManager mChatManager;
 
-
-
-    public void init(@NonNull ChatClientConfig config, @NonNull Application context) {
+    public void init(@NonNull ChatClientConfig config) {
         try {
             connection = XmppTool.setOpenFireConnectionConfig(config);
         } catch (XmppStringprepException e) {
             e.printStackTrace();
         }
 
-        connectManager = new ConnectionManager();
+        connectManager = new ConnectionManager(connection);
         mChatManager = new IMChatMsgManager();
-
-        connection.addConnectionListener(connectManager);
-
         mChatManager.initIm(connection);
-    }
-
-    public void release() {
-        connection.removeConnectionListener(connectManager);
     }
 
     public Observable<Object> login(String userName, String passWord) {
@@ -122,9 +109,22 @@ public abstract class ChatClient {
             return;
         }
         configMap.clear();
-        mChatManager.destroy();
-        connectManager.destroy();
+        mChatManager.release();
+        connectManager.release();
         connection.disconnect();
+    }
+
+    /**
+     * 销毁连接，需要重新init
+     */
+    public void destroy() {
+        configMap.clear();
+        mChatManager.destroy();
+        mChatManager = null;
+        connectManager.destroy();
+        connectManager = null;
+        connection.disconnect();
+        connection = null;
     }
 
     /**

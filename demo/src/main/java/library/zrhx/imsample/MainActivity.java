@@ -1,6 +1,6 @@
 package library.zrhx.imsample;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,11 +15,16 @@ import com.lib_im.profession.IMChatClient;
 import com.lib_im.profession.entity.ChatMessage;
 import com.lib_im.profession.message.IMGroupConversation;
 import com.lib_im.profession.message.IMUserConversation;
+import com.zrhx.base.base.BaseActivity;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 
-public class MainActivity extends Activity {
+import static library.zrhx.imsample.Const.GROUP_ID;
+import static library.zrhx.imsample.Const.NICK_NAME;
+import static library.zrhx.imsample.Const.TO_USER_ID;
+
+public class MainActivity extends BaseActivity {
 
     private IMUserConversation mConversation;
     private IMGroupConversation mGroupConversation;
@@ -55,10 +60,10 @@ public class MainActivity extends Activity {
         });
 
         //获取一个单聊会话
-        mConversation = chatManager.getUserConversation("pz");
+        mConversation = chatManager.getUserConversation(TO_USER_ID);
 
         //获取一个群聊会话
-        chatManager.getGroupConversation("just@conference.127.0.0.1", "zhouss").subscribe(
+        chatManager.getGroupConversation(GROUP_ID, NICK_NAME).subscribe(
                 new SimpleObserver<IMGroupConversation>() {
                     @Override
                     public void onNext(IMGroupConversation imGroupConversation) {
@@ -78,6 +83,7 @@ public class MainActivity extends Activity {
         }
 
         String trim = mEdit.getText().toString().trim();
+        mEdit.setText("");
         ChatMessage msg = new ChatMessage();
         msg.setMsg(trim.isEmpty() ? "test" : trim);
         mConversation.send(msg.getMsg())
@@ -111,7 +117,7 @@ public class MainActivity extends Activity {
             return;
         }
         ChatMessage msg2 = new ChatMessage();
-        msg2.setMsg("groupmsg");
+        msg2.setMsg(trim.isEmpty() ? "groupTest" : trim);
         mGroupConversation.send(msg2.getMsg())
                           .subscribe(new Observer<String>() {
                               @Override
@@ -142,6 +148,13 @@ public class MainActivity extends Activity {
 
     public void logout(View view) {
         IMChatClient.getInstance().logout();
+        startActivity(new Intent(this, LoginActivity.class));
         finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        logout(null);
+        super.onBackPressed();
     }
 }

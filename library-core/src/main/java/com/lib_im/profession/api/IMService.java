@@ -1,12 +1,12 @@
 package com.lib_im.profession.api;
 
 import com.lib_im.core.entity.ChatRecord;
-import com.lib_im.profession.entity.Contact;
 import com.lib_im.core.entity.GroupChatRecord;
+import com.lib_im.profession.entity.Contact;
 import com.lib_im.profession.entity.GroupContact;
 import com.lib_im.profession.entity.GroupDetails;
 import com.lib_im.profession.entity.GroupMember;
-import com.lib_im.core.retrofit.base.BaseResponse;
+import com.lib_im.profession.retrofit.base.BaseResponse;
 
 import java.util.List;
 
@@ -21,12 +21,10 @@ import retrofit2.http.Query;
 
 public interface IMService {
 
-
     /**
      * 查询群组列表
      */
-
-    @GET("group/getGroupList")
+    @GET("chat/getGroup")
     Observable<BaseResponse<List<GroupContact>>> queryGroupList(
             @Query("groupType") String groupType);
 

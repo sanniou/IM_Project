@@ -80,8 +80,8 @@ public class IMPushManager {
                 .setSmallIcon(mIconId)
                 .setWhen(when);
         if (mBell) {
-            builder.setSound(Uri.parse("android.resource://"
-                    + mContext.getPackageName() + "/" + R.raw.notifi));
+           /* builder.setSound(Uri.parse("android.resource://"
+                    + mContext.getPackageName() + "/" + R.raw.notifi));*/
             mBell = Boolean.FALSE;
         }
         if (mVibrate) {

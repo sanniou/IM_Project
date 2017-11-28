@@ -1,4 +1,4 @@
-package com.lib_im.core.retrofit.base;
+package com.lib_im.profession.retrofit.base;
 
 import com.lib_im.core.exception.ApiErrorException;
 

@@ -1,47 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="match_parent"
-android:layout_height="match_parent">
-<RelativeLayout
-    android:id="@+id/im_contact_title_layout"
-    android:layout_width="match_parent"
-    android:layout_height="?android:attr/actionBarSize"
-    android:layout_alignParentStart="true"
-    android:layout_alignParentTop="true"
-    android:background="@color/app_white">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/im_contact_title_back_image"
-        android:layout_width="30dp"
-        android:layout_height="match_parent"
-        android:padding="5dp"
-        android:adjustViewBounds="true"
-        android:src="@mipmap/back" />
+    <RelativeLayout
+        android:id="@+id/im_contact_title_layout"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:background="@color/config_white">
 
-    <TextView
-        android:id="@+id/im_contact_title_title_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="联系人"
-        android:textColor="@color/app_black"
-        android:textSize="20sp" />
-</RelativeLayout>
-<com.lib_im.pro.ui.widget.swipe.LSwipeRefreshLayout
-    android:id="@+id/contact_refresh_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_below="@+id/im_contact_title_layout">
+        <ImageView
+            android:id="@+id/im_contact_title_back_image"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:padding="5dp"
+            android:src="@mipmap/back"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/im_contact_listView"
+        <TextView
+            android:id="@+id/im_contact_title_title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="联系人"
+            android:textColor="@color/config_white"
+            android:textSize="20sp"/>
+    </RelativeLayout>
+
+    <com.lib_im.pro.ui.widget.swipe.LSwipeRefreshLayout
+        android:id="@+id/contact_refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/im_session_title_layout"
-        android:layout_marginTop="10dp">
+        android:layout_below="@+id/im_contact_title_layout">
 
-    </android.support.v7.widget.RecyclerView>
-</com.lib_im.pro.ui.widget.swipe.LSwipeRefreshLayout>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/im_contact_listView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/im_session_title_layout"
+            android:layout_marginTop="10dp">
+
+        </android.support.v7.widget.RecyclerView>
+    </com.lib_im.pro.ui.widget.swipe.LSwipeRefreshLayout>
 
 
 </RelativeLayout>

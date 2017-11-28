@@ -1,9 +1,9 @@
 package com.lib_im.profession.message;
 
+import com.lib_im.core.entity.ChatRecord;
 import com.lib_im.core.manager.message.conversation.AbsUserConversation;
 import com.lib_im.profession.api.IMRequest;
 import com.lib_im.profession.entity.ChatMessage;
-import com.lib_im.core.entity.ChatRecord;
 import com.lib_im.profession.entity.Contact;
 
 import org.jivesoftware.smack.chat2.Chat;
@@ -59,7 +59,7 @@ public class IMUserConversation extends AbsUserConversation {
     /**
      * 加载所有通讯录
      */
-    public Observable<List<Contact>> loadContact() {
+    public static Observable<List<Contact>> loadContact() {
         return IMRequest.getInstance()
                         .queryFriendList(null);
     }
@@ -82,7 +82,7 @@ public class IMUserConversation extends AbsUserConversation {
     /**
      * 搜索好友
      */
-    public Observable<List<Contact>> searchContact(String key) {
+    public static Observable<List<Contact>> searchContact(String key) {
         return IMRequest.getInstance().searchFriendList(key);
     }
 

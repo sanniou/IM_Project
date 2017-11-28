@@ -1,9 +1,14 @@
 package com.lib_im.core.manager.message.conversation;
 
+import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.muc.MultiUserChatException;
 import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.jid.parts.Resourcepart;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.util.Collection;
 
@@ -39,12 +44,35 @@ public abstract class AbsGroupConversation implements IConversation {
         return Observable.create((ObservableOnSubscribe<String>) e -> {
             mGroup.sendMessage(msg);
             //消息撤回，将消息发送出去
-            e.setCancellable(() -> {
-                e.onNext(msg);
-            });
+            e.setCancellable(() -> e.onNext(msg));
             e.onComplete();
         }).subscribeOn(Schedulers.io())
                          .observeOn(AndroidSchedulers.mainThread());
     }
 
+    public final void leave() throws SmackException.NotConnectedException, InterruptedException {
+        mGroup.leave();
+    }
+
+    public final void destroy(String reason, String userId)
+            throws SmackException.NotConnectedException, InterruptedException, XmppStringprepException, XMPPException.XMPPErrorException, SmackException.NoResponseException {
+        mGroup.destroy(reason, JidCreate.entityBareFrom(userId));
+    }
+
+    public final void changeNickname(String nickname)
+            throws SmackException.NoResponseException, XMPPException.XMPPErrorException, SmackException.NotConnectedException, InterruptedException, MultiUserChatException.MucNotJoinedException, XmppStringprepException {
+        mGroup.changeNickname(Resourcepart.from(nickname));
+    }
+
+    /**
+     * 禁言
+     */
+    public final void revokeVoice(String nickname)
+            throws XmppStringprepException, XMPPException.XMPPErrorException, SmackException.NotConnectedException, InterruptedException, SmackException.NoResponseException {
+        mGroup.revokeVoice(Resourcepart.from(nickname));
+    }
+
+    public void release(MessageListener messageListener) {
+        mGroup.removeMessageListener(messageListener);
+    }
 }

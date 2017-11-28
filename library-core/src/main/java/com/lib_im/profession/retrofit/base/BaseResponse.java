@@ -1,4 +1,4 @@
-package com.lib_im.core.retrofit.base;
+package com.lib_im.profession.retrofit.base;
 
 /**
  * Created by songgx on 2017/9/26.

@@ -3,19 +3,23 @@ package com.lib_im.core.manager.message;
 import android.util.Log;
 
 import com.lib_im.core.exception.ApiErrorException;
-import com.lib_im.core.rx.SimpleObserver;
 import com.lib_im.profession.message.IMGroupConversation;
 import com.lib_im.profession.message.IMUserConversation;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
+import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
+import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
+import org.jivesoftware.smack.chat2.OutgoingChatMessageListener;
 import org.jivesoftware.smack.filter.StanzaFilter;
 import org.jivesoftware.smack.filter.StanzaTypeFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Stanza;
+import org.jivesoftware.smackx.muc.AutoJoinFailedCallback;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatException;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
@@ -24,6 +28,7 @@ import org.jivesoftware.smackx.muc.UserStatusListener;
 import org.jivesoftware.smackx.offline.OfflineMessageHeader;
 import org.jivesoftware.smackx.offline.OfflineMessageManager;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
+import org.jivesoftware.smackx.receipts.ReceiptReceivedListener;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.EntityFullJid;
 import org.jxmpp.jid.Jid;
@@ -47,93 +52,104 @@ import io.reactivex.schedulers.Schedulers;
  */
 public class IMChatMsgManager {
 
-    private AbstractXMPPConnection connection;
+    private final String TAG = "IMChatMsgManager";
+
     private List<IMMessageListener> mIMMessageListeners = new ArrayList<>();
 
-    private final String TAG = "IMChatMsgManager";
+    private AbstractXMPPConnection connection;
     private ChatManager mChatManager;
-
-    //消息回执管理器
     private DeliveryReceiptManager mDeliveryReceiptManager;
+    private MultiUserChatManager mMultiUserChatManager;
     /**
      * 添加存储聊天室对象的全局map
      */
     private static Map<String, IMGroupConversation> roomMap = new HashMap<>();
     private static Map<String, IMUserConversation> chatMap = new HashMap<>();
+    private ReceiptReceivedListener mReceivedListener;
+    private StanzaListener mSyncStanzListener;
+    private IncomingChatMessageListener mIncomingListener;
+    private OutgoingChatMessageListener mOutgoingListener;
+    private AutoJoinFailedCallback mGroupAutoJoinCallback;
+    private MessageListener mMessageListener;
 
-    public void initIm(AbstractXMPPConnection connection) {
-        this.connection = connection;
-        mChatManager = ChatManager.getInstanceFor(connection);
-        //为传入的聊天消息添加一个新的监听器。
-        mChatManager.addIncomingListener(this::receiveMessage);
-        //为发出的聊天消息添加一个新的监听器。
-        mChatManager.addOutgoingListener((to, message, chat) -> {
-            Log.e(TAG, "发出消息" + message.getBody());
-        });
-        StanzaFilter stanzaFilter = new StanzaTypeFilter(Stanza.class);
-        //提供一种机制来侦听通过指定过滤器的数据包。这允许事件风格的编程 - 每次找到新的节（/数据包）时，
-        // 将调用{@link #processStanza（Stanza）}方法。这是一个由连接器提供的功能的另一种方法，它可以让你在等待结果时阻塞。
-        connection.addSyncStanzaListener(packet -> {
-            Log.e(TAG, "Stanza" + packet.toString());
+    {
+        mMessageListener = IMChatMsgManager.this::processMessage;
+
+        mOutgoingListener = (to, message, chat) -> Log.e(TAG, "发出消息" + message.getBody());
+        mIncomingListener = this::receiveMessage;
+        mReceivedListener = this::notifyReceiptMessageListener;
+        mSyncStanzListener = packet -> {
+            Log.e(TAG, "SyncStanzaListener " + packet.toString());
             if (packet instanceof Message) {
                 Message message = (Message) packet;
+                Log.e(TAG,
+                        "SyncStanzaMessage from " + message.getFrom() + " to " + message.getTo() +
+                                " type:" + message.getType() + " \nbody:" + message.getBody());
                 final Message.Type type = message.getType();
-                Log.e(TAG, "Message" + message.toString());
                 if (Message.Type.headline.equals(type)) {
                     String content = message.getBody();
                     // TODO 推送模块逻辑，根据具体业务逻辑而定
                 }
             }
-        }, stanzaFilter);
-        //消息回执添加监听器操作
+        };
+
+        mGroupAutoJoinCallback = (muc, e) -> {
+            Log.e("ChatManager", "AutoJoinFailed");
+            e.printStackTrace();
+        };
+    }
+
+    public void initIm(AbstractXMPPConnection connection) {
+        this.connection = connection;
+        mChatManager = ChatManager.getInstanceFor(connection);
+        //为传入的聊天消息添加一个新的监听器。
+        mChatManager.addIncomingListener(mIncomingListener);
+        //为发出的聊天消息添加一个新的监听器。
+        mChatManager.addOutgoingListener(mOutgoingListener);
+        StanzaFilter stanzaFilter = new StanzaTypeFilter(Stanza.class);
+        //提供一种机制来侦听通过指定过滤器的数据包。这允许事件风格的编程 - 每次找到新的节（/数据包）时，
+        // 将调用{@link #processStanza（Stanza）}方法。这是一个由连接器提供的功能的另一种方法，它可以让你在等待结果时阻塞。
+        connection.addSyncStanzaListener(mSyncStanzListener, stanzaFilter);
         mDeliveryReceiptManager = DeliveryReceiptManager.getInstanceFor(connection);
         //为外发邮件启用送达收据的自动请求
         mDeliveryReceiptManager.autoAddDeliveryReceiptRequests();
-        //收到新收据时调用回调。
-        mDeliveryReceiptManager.addReceiptReceivedListener(this::notifyReceiptMessageListener);
+        //消息回执添加监听器操作
+        mDeliveryReceiptManager.addReceiptReceivedListener(mReceivedListener);
+        // 群聊管理器
+        mMultiUserChatManager = MultiUserChatManager.getInstanceFor(connection);
+        // 重连时自动重连群聊
+        mMultiUserChatManager.setAutoJoinOnReconnect(true);
+        // 重连监听
+        mMultiUserChatManager.setAutoJoinFailedCallback(mGroupAutoJoinCallback);
     }
 
     /**
      * 获取离线消息
      */
-    public void readOfflineMessage() {
-        Observable.create((ObservableOnSubscribe<String>) e -> {
-            Log.e(TAG, "获取离线消息 ");
-            OfflineMessageManager offlineManager = new OfflineMessageManager(connection);
-            int count = offlineManager.getMessageCount();
-            Log.e(TAG, "收到离线消息 " + count);
-            if (count == 0) {
-                e.onComplete();
-                return;
+    public void readOfflineMessage()
+            throws XMPPException.XMPPErrorException, SmackException.NotConnectedException, InterruptedException, SmackException.NoResponseException {
+        Log.e(TAG, "获取离线消息 ");
+        OfflineMessageManager offlineManager = new OfflineMessageManager(connection);
+        int count = offlineManager.getMessageCount();
+        Log.e(TAG, "收到离线消息 " + count);
+        if (count == 0) {
+            return;
+        }
+        List<OfflineMessageHeader> headers = offlineManager.getHeaders();
+        Log.e(TAG, "收到离线消息头 " + headers.toString());
+        List<Message> messageList = offlineManager.getMessages();
+        for (Message message : messageList) {
+            Log.e(TAG, "收到离线消息 , Received from 【" + message.getFrom() + "】 message: " +
+                    message.getBody());
+            Message.Type type = message.getType();
+            if (Message.Type.chat == type || Message.Type.groupchat == type) {
+                //解析接收到的消息体
+                String messageBody = message.getBody();
+                notifyMessageListener(messageBody);
             }
-            List<OfflineMessageHeader> headers = offlineManager.getHeaders();
-            Log.e(TAG, "收到离线消息头 " + headers.toString());
-            List<Message> messageList = offlineManager.getMessages();
-            for (Message message : messageList) {
-                Log.e(TAG, "收到离线消息 , Received from 【" + message.getFrom() + "】 message: " +
-                        message.getBody());
-                Message.Type type = message.getType();
-                if (Message.Type.chat == type || Message.Type.groupchat == type) {
-                    //解析接收到的消息体
-                    String messageBody = message.getBody();
-                    e.onNext(messageBody);
-                }
-            }
-            e.onComplete();
-            offlineManager.deleteMessages();
-        }).subscribeOn(Schedulers.io())
-                  .observeOn(AndroidSchedulers.mainThread())
-                  .subscribe(new SimpleObserver<String>() {
-                      @Override
-                      public void onNext(String s) {
-                          notifyMessageListener(s);
-                      }
+        }
+        offlineManager.deleteMessages();
 
-                      @Override
-                      public void onError(Throwable e) {
-
-                      }
-                  });
     }
 
     /**
@@ -213,12 +229,9 @@ public class IMChatMsgManager {
      */
     private MultiUserChat getMultiRoom(String jid, String nickName)
             throws XmppStringprepException, XMPPException.XMPPErrorException, MultiUserChatException.NotAMucServiceException, SmackException.NotConnectedException, InterruptedException, SmackException.NoResponseException {
-        MultiUserChatManager multiUserChatManager = MultiUserChatManager
-                .getInstanceFor(connection);
         EntityBareJid entityBareJid = JidCreate.entityBareFrom(jid);
-        MultiUserChat multiUserChat = multiUserChatManager.getMultiUserChat(entityBareJid);
+        MultiUserChat multiUserChat = mMultiUserChatManager.getMultiUserChat(entityBareJid);
         Log.e(TAG, "初始化聊天室>>>>>>>>>>>>>>>>>" + jid + Thread.currentThread().getName());
-
         //使用指定的昵称加入聊天室。如果已经使用另一个昵称加入，则此方法将首先离开房间，然后使用新的昵称重新加入。
         // 将使用来自组聊天服务器的联接成功的答复的默认连接超时。房间加入后，房间将决定发送的历史数量。
         multiUserChat.join(Resourcepart.from(nickName));
@@ -249,8 +262,7 @@ public class IMChatMsgManager {
 
         //*添加一个节（/数据包）侦听器，将通知群聊中的任何新消息。只有发给这个群聊的“group chat”类型的消息才会传送给听众。
         // 如果您希望监听可能与此群聊相关的其他数据包，则应该使用适当的PacketListener直接向XMPPConnection注册PacketListener。
-        multiUserChat.addMessageListener(IMChatMsgManager.this::processMessage);
-
+        multiUserChat.addMessageListener(mMessageListener);
         Log.e(TAG, "初始化聊天室成功<<<<<<<<<<<<" + jid + Thread.currentThread());
         return multiUserChat;
     }
@@ -259,20 +271,42 @@ public class IMChatMsgManager {
      * 收到群聊消息的处理
      */
     private void processMessage(Message message) {
-        Log.e(TAG, "processMessage 接收消息...." + message.getBody());
-        AndroidSchedulers.mainThread().createWorker().schedule(() -> {
-            notifyGroupMessageListener(message.getBody());
-        });
+        Log.e(TAG, "processMessage 收到群聊消息...." + message.getBody());
+        AndroidSchedulers.mainThread().createWorker()
+                         .schedule(() -> notifyGroupMessageListener(message.getBody()));
     }
 
     /**
      * 当应用断开连接或者时，注销登录时移除掉群聊天对象map
      */
-    public void destroy() {
+    public void release() {
+        for (IMGroupConversation conversation : roomMap.values()) {
+            try {
+                conversation.leave();
+                conversation.release(mMessageListener);
+            } catch (SmackException.NotConnectedException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         roomMap.clear();
         chatMap.clear();
         mIMMessageListeners.clear();
-        //mDeliveryReceiptManager.removeReceiptReceivedListener();
+    }
+
+    /**
+     * 销毁 connect
+     */
+    public void destroy() {
+        release();
+        mMultiUserChatManager.setAutoJoinFailedCallback(null);
+        mMultiUserChatManager = null;
+        mChatManager.removeListener(mIncomingListener);
+        mChatManager.removeListener(mOutgoingListener);
+        mChatManager = null;
+        connection.removeSyncStanzaListener(mSyncStanzListener);
+        connection = null;
+        mDeliveryReceiptManager.removeReceiptReceivedListener(mReceivedListener);
+        mDeliveryReceiptManager = null;
     }
 
     /**

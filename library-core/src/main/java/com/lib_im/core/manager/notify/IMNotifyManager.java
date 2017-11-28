@@ -83,13 +83,13 @@ public class IMNotifyManager  {
                 .setAutoCancel(true)
                 .setContentTitle(mAppName)
                 .setContentText(
-                        chatUserName + ":" + mContext.getString(R.string.chat_core_send_new_msg))
+                        chatUserName + ":" + "sssssss")
                 .setContentIntent(sender)
                 .setSmallIcon(mIconId)
                 .setWhen(when);
         if (mBell) {
-            builder.setSound(Uri.parse("android.resource://"
-                    + mContext.getPackageName() + "/" + R.raw.notifi));
+            /*builder.setSound(Uri.parse("android.resource://"
+                    + mContext.getPackageName() + "/" + R.raw.notifi));*/
             mBell = Boolean.FALSE;
         }
         if (mVibrate) {

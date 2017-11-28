@@ -1,6 +1,5 @@
 package library.zrhx.imsample;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -10,8 +9,12 @@ import android.widget.Toast;
 
 import com.lib_im.core.rx.SimpleCompleteObserver;
 import com.lib_im.profession.IMChatClient;
+import com.zrhx.base.base.BaseActivity;
 
-public class LoginActivity extends Activity implements View.OnClickListener {
+import static library.zrhx.imsample.Const.LOGIN_NAME;
+import static library.zrhx.imsample.Const.PASSWORD;
+
+public class LoginActivity extends BaseActivity implements View.OnClickListener {
 
     EditText nameEdit;
     EditText passEdit;
@@ -25,8 +28,8 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         passEdit = findViewById(R.id.editText4);
         Button button = findViewById(R.id.button);
         button.setOnClickListener(this);
-        nameEdit.setText("lsscj");
-        passEdit.setText("lsscj");
+        nameEdit.setText(LOGIN_NAME);
+        passEdit.setText(PASSWORD);
     }
 
     @Override
@@ -57,6 +60,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                         public void onComplete() {
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
+                            finish();
                         }
                     });
     }

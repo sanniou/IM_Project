@@ -2,12 +2,12 @@ package com.lib_im.profession.api;
 
 import com.lib_im.core.entity.ChatRecord;
 import com.lib_im.core.entity.GroupChatRecord;
-import com.lib_im.core.retrofit.base.BaseResponseMapper;
-import com.lib_im.core.retrofit.config.IMRetrofit;
 import com.lib_im.profession.entity.Contact;
 import com.lib_im.profession.entity.GroupContact;
 import com.lib_im.profession.entity.GroupDetails;
 import com.lib_im.profession.entity.GroupMember;
+import com.lib_im.profession.retrofit.base.BaseResponseMapper;
+import com.lib_im.profession.retrofit.config.IMRetrofit;
 
 import java.util.List;
 

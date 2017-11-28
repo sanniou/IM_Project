@@ -1,4 +1,4 @@
-package com.lib_im.core.retrofit.config;
+package com.lib_im.profession.retrofit.config;
 
 import android.util.Log;
 

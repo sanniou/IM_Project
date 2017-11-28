@@ -4,7 +4,7 @@ import library.san.library_ui.entity.ChatMessage;
 import library.san.library_ui.entity.FileUpEntity;
 
 import com.lib_im.pro.im.listener.StopRefreshListener;
-import com.lib_im.core.retrofit.upload.Uploader;
+import com.lib_im.profession.retrofit.upload.Uploader;
 import library.san.library_ui.utils.ExecutorTasks;
 import library.san.library_ui.utils.IDUtil;
 

@@ -3,6 +3,7 @@ package com.lib_im.core.manager.message.conversation;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptRequest;
+import org.jxmpp.jid.EntityBareJid;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
@@ -21,6 +22,10 @@ public abstract class AbsUserConversation implements IConversation {
         mChat = chat;
     }
 
+    public final EntityBareJid getXmppAddressOfChatPartner(@NonNull Chat chat) {
+        return chat.getXmppAddressOfChatPartner();
+    }
+
     @Override
     public final Observable<String> send(@NonNull String msg) {
         return Observable.create((ObservableOnSubscribe<String>) e -> {
@@ -30,9 +35,7 @@ public abstract class AbsUserConversation implements IConversation {
             DeliveryReceiptRequest.addTo(stanza);
             mChat.send(stanza);
             //消息撤回，将消息发送出去
-            e.setCancellable(() -> {
-                e.onNext(msg);
-            });
+            e.setCancellable(() -> e.onNext(msg));
             e.onComplete();
 
         }).subscribeOn(Schedulers.io())
