@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/slide_margin">
+
+    <com.zrhx.base.widget.roundimage.RoundedImageView
+        android:id="@+id/chat_head"
+        android:layout_width="@dimen/head_size"
+        android:layout_height="@dimen/head_size"
+        android:adjustViewBounds="true"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:src="@drawable/add_send"/>
+
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/left_news"
+        app:layout_constraintBottom_toBottomOf="@id/chet_message"
+        app:layout_constraintEnd_toEndOf="@id/chet_message"
+        app:layout_constraintStart_toStartOf="@id/chet_message"
+        app:layout_constraintTop_toTopOf="@id/chet_message"/>
+
+    <TextView
+        android:id="@+id/chet_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/slide_margin"
+        android:paddingStart="30dp"
+        app:layout_constraintStart_toEndOf="@id/chat_head"
+        app:layout_constraintTop_toTopOf="@id/chat_head"
+        tools:text="@string/app_name"/>
+</android.support.constraint.ConstraintLayout>

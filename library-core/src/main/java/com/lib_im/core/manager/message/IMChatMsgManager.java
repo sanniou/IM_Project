@@ -29,6 +29,8 @@ import org.jivesoftware.smackx.offline.OfflineMessageHeader;
 import org.jivesoftware.smackx.offline.OfflineMessageManager;
 import org.jivesoftware.smackx.receipts.DeliveryReceiptManager;
 import org.jivesoftware.smackx.receipts.ReceiptReceivedListener;
+import org.jxmpp.jid.BareJid;
+import org.jxmpp.jid.DomainBareJid;
 import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.EntityFullJid;
 import org.jxmpp.jid.Jid;
@@ -44,7 +46,9 @@ import java.util.Map;
 import io.reactivex.Observable;
 import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 
 /**
  * 聊天管理器
@@ -55,6 +59,7 @@ public class IMChatMsgManager {
     private final String TAG = "IMChatMsgManager";
 
     private List<IMMessageListener> mIMMessageListeners = new ArrayList<>();
+    private PublishSubject<Message> mMessageSubject = PublishSubject.create();
 
     private AbstractXMPPConnection connection;
     private ChatManager mChatManager;
@@ -73,8 +78,8 @@ public class IMChatMsgManager {
     private MessageListener mMessageListener;
 
     {
-        mMessageListener = IMChatMsgManager.this::processMessage;
 
+        mMessageListener = this::processMessage;
         mOutgoingListener = (to, message, chat) -> Log.e(TAG, "发出消息" + message.getBody());
         mIncomingListener = this::receiveMessage;
         mReceivedListener = this::notifyReceiptMessageListener;
@@ -271,9 +276,10 @@ public class IMChatMsgManager {
      * 收到群聊消息的处理
      */
     private void processMessage(Message message) {
-        Log.e(TAG, "processMessage 收到群聊消息...." + message.getBody());
-        AndroidSchedulers.mainThread().createWorker()
-                         .schedule(() -> notifyGroupMessageListener(message.getBody()));
+        String body = message.getBody();
+        Log.e(TAG, "processMessage 收到群聊消息...." + body);
+        mMessageSubject.onNext(message);
+        notifyGroupMessageListener(body);
     }
 
     /**
@@ -298,6 +304,8 @@ public class IMChatMsgManager {
      */
     public void destroy() {
         release();
+        mMessageSubject.onComplete();
+        mMessageSubject = null;
         mMultiUserChatManager.setAutoJoinFailedCallback(null);
         mMultiUserChatManager = null;
         mChatManager.removeListener(mIncomingListener);
@@ -342,8 +350,22 @@ public class IMChatMsgManager {
      * openfire 接收消息回调方法,单聊消息监听
      */
     private void receiveMessage(EntityBareJid from, Message message, Chat chat) {
-        AndroidSchedulers.mainThread().createWorker()
-                         .schedule(() -> notifyMessageListener(message.getBody()));
+        String body = message.getBody();
+        mMessageSubject.onNext(message);
+        notifyMessageListener(body);
+    }
+
+    public Observable<String> observeMessage() {
+        return mMessageSubject.subscribeOn(Schedulers.io())
+                              .map(Message::getBody)
+                              .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public Observable<String> observeMessage(@NonNull String id) {
+        return mMessageSubject.subscribeOn(Schedulers.io())
+                              .filter(message -> message.getFrom().asBareJid().toString().equals(id))
+                              .map(Message::getBody)
+                              .observeOn(AndroidSchedulers.mainThread());
     }
 
     /************************* 群组管理员状态更新 IMParticipantStatusListener *************************/

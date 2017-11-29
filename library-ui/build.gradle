@@ -29,5 +29,5 @@ android {
 }
 
 dependencies {
-    implementation 'com.zrhx.base:lib:1.0'
+    implementation 'com.zrhx.base:lib:1.1'
 }

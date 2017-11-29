@@ -1,1 +1,1 @@
-include ':library-core', ':demo', ':library-ui'
+include ':library-core', ':demo'

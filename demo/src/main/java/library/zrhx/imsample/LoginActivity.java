@@ -1,6 +1,5 @@
 package library.zrhx.imsample;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -10,7 +9,11 @@ import android.widget.Toast;
 import com.lib_im.core.rx.SimpleCompleteObserver;
 import com.lib_im.profession.IMChatClient;
 import com.zrhx.base.base.BaseActivity;
+import com.zrhx.base.base.LFragmentActivity;
 
+import library.zrhx.ui.chat.ChatFragment;
+
+import static library.zrhx.imsample.Const.GROUP_ID;
 import static library.zrhx.imsample.Const.LOGIN_NAME;
 import static library.zrhx.imsample.Const.PASSWORD;
 
@@ -58,8 +61,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
 
                         @Override
                         public void onComplete() {
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
+                            Bundle bundle = new Bundle();
+                            bundle.putString(ChatFragment.KEY_FOR_ID, GROUP_ID);
+                            Class<ChatFragment> aClass = ChatFragment.class;
+                            LFragmentActivity
+                                    .getInstance(LoginActivity.this, "just", aClass,
+                                            bundle);
                             finish();
                         }
                     });

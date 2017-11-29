@@ -1,5 +1,15 @@
 package library.zrhx.ui.chat;
 
-public class Chatcontract {
+public interface Chatcontract {
 
+    interface ChatView {
+
+        void addMessage(String message);
+
+        void sendMessageSuccess(String message);
+
+        void joinRoomFailed(Throwable throwable);
+
+        void sendMessageFiled(Throwable throwable);
+    }
 }
