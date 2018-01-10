@@ -7,6 +7,7 @@ import com.lib_im.core.ChatClientConfig;
 import com.lib_im.core.manager.connect.ConnectListener;
 import com.lib_im.profession.IMChatClient;
 import com.zrhx.base.BaseAppUtils;
+import com.zrhx.base.BaseConfig;
 
 public class DemoApplication extends Application {
 
@@ -16,9 +17,9 @@ public class DemoApplication extends Application {
     @Override
     public void onCreate() {
 
-        BaseAppUtils.init(this);
+        BaseAppUtils.init(new BaseConfig(this, "", "", "", "", "", "im"));
 
-        ChatClientConfig clientConfig = new ChatClientConfig(60, 15_000, true, openfire2,
+        ChatClientConfig clientConfig = new ChatClientConfig(60, 15_000, true, openfire,
                 5222, "127.0.0.1", "test");
         IMChatClient chatClient = IMChatClient.getInstance();
         chatClient.init(clientConfig);

@@ -52,7 +52,6 @@ import io.reactivex.subjects.PublishSubject;
 
 /**
  * 聊天管理器
- * Created by songgx on 16/6/15.
  */
 public class IMChatMsgManager {
 

@@ -12,6 +12,7 @@ import com.zrhx.base.base.BaseActivity;
 import com.zrhx.base.base.LFragmentActivity;
 
 import library.zrhx.ui.chat.ChatFragment;
+import library.zrhx.ui.contact.ContactFragment;
 
 import static library.zrhx.imsample.Const.GROUP_ID;
 import static library.zrhx.imsample.Const.LOGIN_NAME;
@@ -63,7 +64,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         public void onComplete() {
                             Bundle bundle = new Bundle();
                             bundle.putString(ChatFragment.KEY_FOR_ID, GROUP_ID);
-                            Class<ChatFragment> aClass = ChatFragment.class;
+                            Class aClass = ContactFragment.class;
                             LFragmentActivity
                                     .getInstance(LoginActivity.this, "just", aClass,
                                             bundle);

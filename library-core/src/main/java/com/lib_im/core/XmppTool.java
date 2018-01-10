@@ -1,9 +1,5 @@
 package com.lib_im.core;
 
-/**
- * Created by songgx on 2016/6/16.
- */
-
 import android.util.Log;
 
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -76,15 +72,15 @@ public class XmppTool {
         XMPPTCPConnectionConfiguration.Builder builder = XMPPTCPConnectionConfiguration
                 .builder();
         builder.setConnectTimeout(config.getConnectTimeOut())
-               //设置是否将初始可用状态发送到服务器。默认情况下，可用状态将被发送到服务器，指示该状态不在线并可用于接收消息。
-               // 如果你想在不被“注意”的情况下登录，那么传递一个 false,设置初始为脱机状态
-               .setSendPresence(false)
-               .setHost(config.getServerHost())
-               .setPort(config.getServerPort())
-               .setResource(config.getClientName())
-               .setDebuggerEnabled(config.getDebugg())
-               .setXmppDomain(JidCreate.domainBareFrom(config.getServerName()))
-               .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
+                //设置是否将初始可用状态发送到服务器。默认情况下，可用状态将被发送到服务器，指示该状态不在线并可用于接收消息。
+                // 如果你想在不被“注意”的情况下登录，那么传递一个 false,设置初始为脱机状态
+                .setSendPresence(false)
+                .setHost(config.getServerHost())
+                .setPort(config.getServerPort())
+                .setResource(config.getClientName())
+                .setDebuggerEnabled(config.getDebugg())
+                .setXmppDomain(JidCreate.domainBareFrom(config.getServerName()))
+                .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
         XMPPTCPConnection con = new XMPPTCPConnection(builder.build());
         //设置节（/数据包）答复超时以毫秒为单位。在大多数情况下，如果在超时期限内没有收到对请求的回复，Smack将抛出{@link NoResponseException}。
         con.setReplyTimeout(config.getConnectTimeOut());

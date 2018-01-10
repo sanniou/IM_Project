@@ -18,13 +18,11 @@ buildscript {
 
 allprojects {
     repositories {
-        jcenter()
-        mavenCentral()
-        maven { url "https://jitpack.io" }
-        maven {
-            url 'file:///D:/Android/'
-        }
         google()
+        jcenter()
+        maven {
+            url "http://192.168.3.183:8081/repository/zrhx-release/"
+        }
     }
 }
 

@@ -16,6 +16,7 @@ import com.lib_im.profession.entity.ChatMessage;
 import com.lib_im.profession.message.IMGroupConversation;
 import com.lib_im.profession.message.IMUserConversation;
 import com.zrhx.base.base.BaseActivity;
+import com.zrhx.base.base.LFragmentActivity;
 
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -156,5 +157,10 @@ public class MainActivity extends BaseActivity {
     public void onBackPressed() {
         logout(null);
         super.onBackPressed();
+    }
+
+    public void run(View view) {
+        String text = ((TextView) view).getText().toString();
+        LFragmentActivity.getInstance(this, text,text);
     }
 }
